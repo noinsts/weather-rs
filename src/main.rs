@@ -1,8 +1,13 @@
+mod commands;
+mod handlers;
+
 use std::env;
 use dotenvy::dotenv;
 
 use teloxide::prelude::*;
-use teloxide::sugar::request::RequestReplyExt;
+
+use commands::Commands;
+use crate::handlers::handle_command;
 
 #[tokio::main]
 async fn main() {
@@ -13,23 +18,13 @@ async fn main() {
 
     let bot = Bot::new(token);
 
-    let handler = dptree::entry()
-        .branch(
-            Update::filter_message()
-                .endpoint(echo)
-        );
+    let handler = Update::filter_message()
+        .filter_command::<Commands>()
+        .endpoint(handle_command);
 
     Dispatcher::builder(bot, handler)
+        .enable_ctrlc_handler()
         .build()
         .dispatch()
         .await;
-}
-
-async fn echo(bot: Bot, msg: Message) -> ResponseResult<()> {
-    if let Some(text) = msg.text() {
-        bot.send_message(msg.chat.id, text.to_string())
-            .reply_to(msg.id)
-            .await?;
-    }
-    Ok(())
 }
