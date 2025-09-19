@@ -7,3 +7,4 @@ edition = "2024"
 teloxide = { version="0.17.0", features = ["macros"] }
 tokio = {version = "1" , features = ["full"]}
 dotenvy = { version = "0.15.7" , features = [] }
+rusqlite = { version = "0.37.0", features = ["bundled"] }
