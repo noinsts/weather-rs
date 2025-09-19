@@ -1,0 +1,9 @@
+[package]
+name = "weather-rs"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+teloxide = { version="0.17.0", features = ["macros"] }
+tokio = {version = "1" , features = ["full"]}
+dotenvy = { version = "0.15.7" , features = [] }
