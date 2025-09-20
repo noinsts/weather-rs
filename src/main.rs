@@ -29,7 +29,7 @@ async fn main() {
 
     Dispatcher::builder(bot, handler)
         .enable_ctrlc_handler()
-        .dependencies(dptree::deps![db])
+        .dependencies(dptree::deps![db.clone()])
         .build()
         .dispatch()
         .await;
