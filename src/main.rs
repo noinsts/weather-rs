@@ -3,6 +3,7 @@ mod handlers;
 mod db;
 mod states;
 mod types;
+mod schema;
 
 use std::env;
 use dotenvy::dotenv;
