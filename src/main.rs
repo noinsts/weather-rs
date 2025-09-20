@@ -7,12 +7,12 @@ mod schema;
 
 use std::env;
 use dotenvy::dotenv;
-
+use teloxide::dispatching::dialogue::InMemStorage;
 use teloxide::prelude::*;
 
-use commands::Commands;
 use crate::db::db::init_db;
-use crate::handlers::handle_command;
+use crate::schema::schema;
+use crate::states::State;
 
 #[tokio::main]
 async fn main() {
@@ -26,13 +26,11 @@ async fn main() {
     let db = init_db("users.db")
         .expect("Couldn't initialize database");
 
-    let handler = Update::filter_message()
-        .filter_command::<Commands>()
-        .endpoint(handle_command);
+    let storage = InMemStorage::<State>::new();
 
-    Dispatcher::builder(bot, handler)
+    Dispatcher::builder(bot, schema())
         .enable_ctrlc_handler()
-        .dependencies(dptree::deps![db.clone()])
+        .dependencies(dptree::deps![db.clone(), storage.clone()])
         .build()
         .dispatch()
         .await;
