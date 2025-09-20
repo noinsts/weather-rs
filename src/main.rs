@@ -1,6 +1,7 @@
 mod commands;
 mod handlers;
 mod db;
+mod types;
 
 use std::env;
 use dotenvy::dotenv;
