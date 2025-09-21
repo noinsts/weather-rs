@@ -1,6 +1,6 @@
 use teloxide::types::{InlineKeyboardButton, InlineKeyboardMarkup};
 
-use crate::callbacks::Callbacks;
+use crate::enums::Callbacks;
 
 pub fn get_hub_keyboard() -> InlineKeyboardMarkup {
     InlineKeyboardMarkup::new(vec![

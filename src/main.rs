@@ -1,11 +1,10 @@
-mod commands;
 mod handlers;
 mod db;
 mod states;
 mod types;
 mod schema;
 mod utils;
-mod callbacks;
+mod enums;
 
 use std::env;
 use dotenvy::dotenv;

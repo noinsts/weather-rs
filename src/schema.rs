@@ -3,8 +3,7 @@ use teloxide::dispatching::dialogue::InMemStorage;
 use teloxide::dptree;
 use teloxide::prelude::*;
 
-use crate::callbacks::Callbacks;
-use crate::commands::Commands;
+use crate::enums::{Callbacks, Commands};
 use crate::handlers::{receive_city, start, today};
 use crate::states::State;
 
