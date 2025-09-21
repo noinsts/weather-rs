@@ -3,6 +3,7 @@ use teloxide::dispatching::dialogue::InMemStorage;
 use teloxide::dptree;
 use teloxide::prelude::*;
 
+use crate::callbacks::Callbacks;
 use crate::commands::Commands;
 use crate::handlers::{receive_city, start, today};
 use crate::states::State;
@@ -22,7 +23,7 @@ pub fn schema() -> UpdateHandler<Box<dyn std::error::Error + Send + Sync + 'stat
 
     let callback_queries = Update::filter_callback_query()
         .branch(
-            dptree::filter(|q: CallbackQuery| q.data.as_deref() == Some("today"))
+            dptree::filter(|q: CallbackQuery| q.data.as_deref() == Some(Callbacks::Today.as_str()))
                 .endpoint(today::today_handler),
         );
 
