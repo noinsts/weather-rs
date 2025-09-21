@@ -5,6 +5,7 @@ mod states;
 mod types;
 mod schema;
 mod utils;
+mod callbacks;
 
 use std::env;
 use dotenvy::dotenv;
