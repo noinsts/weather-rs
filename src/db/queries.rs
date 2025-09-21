@@ -22,3 +22,15 @@ pub fn get_city(db: &Db, user_id: i64) -> Option<String> {
     );
     result.ok()
 }
+
+pub fn upsert_city(db: &Db, user_id: i64, city: &String) {
+    let conn = db.lock().unwrap();
+    let now = Utc::now().naive_utc();
+
+    conn.execute(
+        "INSERT INTO users (id, city, created_at, updated_at)\
+        VALUES (?1, ?2, ?3, ?4)\
+        ON CONFLICT(id) DO UPDATE SET city = excluded.city, updated_at = excluded.updated_at",
+        params![user_id, city, now, now],
+    ).unwrap();
+}
