@@ -6,7 +6,7 @@ use teloxide::Bot;
 use crate::db::db::Db;
 use crate::db::queries::get_city;
 use crate::types::HandlerResult;
-use crate::api::{fetch_forecast, today_weather};
+use crate::api::{fetch_forecast, today_weather, tomorrow_weather};
 use crate::api::models::{WeatherResponse, Forecast};
 
 async fn weather_handler<F>(
@@ -70,4 +70,8 @@ where
 
 pub async fn today_handler(bot: Bot, callback: CallbackQuery, db: Db) -> HandlerResult {
     weather_handler(bot, callback, today_weather, "Сьогодні".to_string(), &db).await
+}
+
+pub async fn tomorrow_handler(bot: Bot, callback: CallbackQuery, db: Db) -> HandlerResult {
+    weather_handler(bot, callback, tomorrow_weather, "Завтра".to_string(), &db).await
 }
