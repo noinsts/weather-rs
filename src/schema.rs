@@ -4,7 +4,7 @@ use teloxide::dptree;
 use teloxide::prelude::*;
 
 use crate::enums::{Callbacks, Commands};
-use crate::handlers::{receive_city, start, today};
+use crate::handlers::{receive_city, start, weather};
 use crate::states::State;
 
 pub fn schema() -> UpdateHandler<Box<dyn std::error::Error + Send + Sync + 'static>> {
@@ -23,11 +23,11 @@ pub fn schema() -> UpdateHandler<Box<dyn std::error::Error + Send + Sync + 'stat
     let callback_queries = Update::filter_callback_query()
         .branch(
             dptree::filter(|q: CallbackQuery| q.data.as_deref() == Some(Callbacks::Today.as_str()))
-                .endpoint(today::today_handler),
+                .endpoint(weather::today_handler),
         )
         .branch(
             dptree::filter(|q: CallbackQuery| q.data.as_deref() == Some(Callbacks::Tomorrow.as_str()))
-                .endpoint(today::tomorrow_handler),
+                .endpoint(weather::tomorrow_handler),
         );
 
     dptree::entry()
