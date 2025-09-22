@@ -7,8 +7,18 @@ use crate::db::db::Db;
 use crate::db::queries::get_city;
 use crate::types::HandlerResult;
 use crate::api::{fetch_forecast, today_weather};
+use crate::api::models::{WeatherResponse, Forecast};
 
-pub async fn today_handler(bot: Bot, callback: CallbackQuery, db: &Db) -> HandlerResult {
+async fn weather_handler<F>(
+    bot: Bot,
+    callback: CallbackQuery,
+    selector: F,
+    label: String,
+    db: &Db
+) -> HandlerResult
+where
+    F: Fn(&WeatherResponse) -> Option<&Forecast>,
+{
     dotenv().ok();
 
     let token = match env::var("WEATHER_API_KEY") {
@@ -35,10 +45,10 @@ pub async fn today_handler(bot: Bot, callback: CallbackQuery, db: &Db) -> Handle
     if let Some(message) = callback.message {
         match fetch_forecast(&city, &token).await {
             Ok(resp) => {
-                if let Some(today) = today_weather(&resp) {
+                if let Some(today) = selector(&resp) {
                     bot.send_message(
                         message.chat().id,
-                        format!("Сьогодні: {}, {}", today.main.temp, today.weather[0].description)
+                        format!("{}: {}, {}", label, today.main.temp, today.weather[0].description)
                     )
                         .await?;
                 }
@@ -56,4 +66,8 @@ pub async fn today_handler(bot: Bot, callback: CallbackQuery, db: &Db) -> Handle
     }
     bot.answer_callback_query(callback.id).await?;
     Ok(())
+}
+
+pub async fn today_handler(bot: Bot, callback: CallbackQuery, db: &Db) -> HandlerResult {
+    weather_handler(bot, callback, today_weather, "Сьогодні".to_string(), db).await
 }
