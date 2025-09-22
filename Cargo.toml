@@ -9,3 +9,5 @@ tokio = { version = "1", features = ["full"] }
 dotenvy = { version = "0.15.7" , features = [] }
 rusqlite = { version = "0.37.0", features = ["bundled", "chrono"] }
 chrono = { version = "0.4.42", features = [] }
+reqwest = { version = "0.12", features = ["json"] }
+serde = { version = "1.0", features = ["derive"] }
