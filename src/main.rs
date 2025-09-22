@@ -5,6 +5,7 @@ mod types;
 mod schema;
 mod utils;
 mod enums;
+mod api;
 
 use std::env;
 use dotenvy::dotenv;
