@@ -9,16 +9,34 @@ use crate::types::HandlerResult;
 use crate::api::{fetch_forecast, today_weather, tomorrow_weather};
 use crate::api::models::{WeatherResponse, Forecast};
 
-async fn weather_handler<F>(
+enum Handlers {
+    Today,
+    Tomorrow
+}
+
+impl Handlers {
+    fn label(&self) -> &'static str {
+        match self {
+            Handlers::Today => "Сьогодні",
+            Handlers::Tomorrow => "Завтра"
+        }
+    }
+
+    fn selector(&self) -> fn(&WeatherResponse) -> Option<&Forecast> {
+        match self {
+            Handlers::Today => today_weather,
+            Handlers::Tomorrow => tomorrow_weather
+        }
+    }
+}
+
+async fn weather_handler(
     bot: Bot,
     callback: CallbackQuery,
-    selector: F,
+    selector: fn(&WeatherResponse) -> Option<&Forecast>,
     label: String,
     db: &Db
-) -> HandlerResult
-where
-    F: Fn(&WeatherResponse) -> Option<&Forecast>,
-{
+) -> HandlerResult {
     dotenv().ok();
 
     let token = match env::var("WEATHER_API_KEY") {
@@ -69,9 +87,11 @@ where
 }
 
 pub async fn today_handler(bot: Bot, callback: CallbackQuery, db: Db) -> HandlerResult {
-    weather_handler(bot, callback, today_weather, "Сьогодні".to_string(), &db).await
+    let today = Handlers::Today;
+    weather_handler(bot, callback, today.selector(), today.label().to_string(), &db).await
 }
 
 pub async fn tomorrow_handler(bot: Bot, callback: CallbackQuery, db: Db) -> HandlerResult {
-    weather_handler(bot, callback, tomorrow_weather, "Завтра".to_string(), &db).await
+    let tomorrow = Handlers::Tomorrow;
+    weather_handler(bot, callback, tomorrow.selector(), tomorrow.label().to_string(), &db).await
 }
