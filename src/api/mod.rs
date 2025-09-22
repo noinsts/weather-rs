@@ -1,5 +1,5 @@
 mod api;
-mod models;
+pub mod models;
 mod service;
 
 pub use api::fetch_forecast;
