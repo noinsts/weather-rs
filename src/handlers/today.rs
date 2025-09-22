@@ -68,6 +68,6 @@ where
     Ok(())
 }
 
-pub async fn today_handler(bot: Bot, callback: CallbackQuery, db: &Db) -> HandlerResult {
-    weather_handler(bot, callback, today_weather, "Сьогодні".to_string(), db).await
+pub async fn today_handler(bot: Bot, callback: CallbackQuery, db: Db) -> HandlerResult {
+    weather_handler(bot, callback, today_weather, "Сьогодні".to_string(), &db).await
 }
