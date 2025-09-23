@@ -59,6 +59,7 @@ async fn weather_handler(
             eprintln!("WEATHER_API_KEY environment variable not set");
             bot.answer_callback_query(callback.id)
                 .text("Помилка, зверніться до розробників.")
+                .show_alert(true)
                 .await?;
             return Ok(())
         }
@@ -69,6 +70,7 @@ async fn weather_handler(
         None => {
             bot.answer_callback_query(callback.id)
                 .text("Ваше рідне місто не знайдено. Спробуйте знову.")
+                .show_alert(true)
                 .await?;
             return Ok(());
         }
@@ -89,6 +91,7 @@ async fn weather_handler(
                 else {
                     bot.answer_callback_query(callback.id)
                         .text( "Не вдалося отримати прогноз погоди на сьогодні")
+                        .show_alert(true)
                         .await?;
                     return Ok(());
                 }
