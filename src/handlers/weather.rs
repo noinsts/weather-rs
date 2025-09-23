@@ -8,6 +8,7 @@ use crate::db::queries::get_city;
 use crate::types::HandlerResult;
 use crate::api::{fetch_forecast, today_weather, tomorrow_weather};
 use crate::api::models::{WeatherResponse, Forecast};
+use crate::utils::keyboard::get_to_hub;
 
 enum Handlers {
     Today,
@@ -64,16 +65,19 @@ async fn weather_handler(
         match fetch_forecast(&city, &token).await {
             Ok(resp) => {
                 if let Some(today) = selector(&resp) {
-                    bot.send_message(
+                    bot.edit_message_text(
                         message.chat().id,
+                        message.id(),
                         format!("{}: {}, {}", label, today.main.temp, today.weather[0].description)
                     )
+                        .reply_markup(get_to_hub())
                         .await?;
                 }
                 else {
-                    bot.send_message(message.chat().id, "Не вдалося отримати прогноз погоди на сьогодні")
+                    bot.answer_callback_query(callback.id)
+                        .text( "Не вдалося отримати прогноз погоди на сьогодні")
                         .await?;
-
+                    return Ok(());
                 }
             }
             Err(_) => {
