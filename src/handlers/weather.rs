@@ -44,13 +44,16 @@ impl Handlers {
 ///     - Calls the weather API and extracts forecast using provided selector.
 ///     - Edits the callback message with forecast result and attach "back to hub" keyboard.
 ///     - In case of errors (missing API key, no city, API error), responds to the callback query with an error message.
-async fn weather_handler(
+async fn weather_handler<F>(
     bot: Bot,
     callback: CallbackQuery,
-    selector: fn(&WeatherResponse) -> Option<&Forecast>,
+    selector: F,
     label: String,
     db: &Db
-) -> HandlerResult {
+) -> HandlerResult
+where
+    F: Fn(&WeatherResponse) -> Option<&Forecast>
+{
     dotenv().ok();
 
     let token = match env::var("WEATHER_API_KEY") {
