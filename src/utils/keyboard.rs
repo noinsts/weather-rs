@@ -8,3 +8,9 @@ pub fn get_hub_keyboard() -> InlineKeyboardMarkup {
         vec![InlineKeyboardButton::callback("Button 2", Callbacks::Tomorrow.as_str())],
     ])
 }
+
+pub fn get_to_hub() -> InlineKeyboardMarkup {
+    InlineKeyboardMarkup::new(vec![
+        vec![InlineKeyboardButton::callback("Back", Callbacks::Start.as_str())],
+    ])
+}
