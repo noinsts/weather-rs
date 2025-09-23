@@ -11,7 +11,7 @@ pub fn schema() -> UpdateHandler<Box<dyn std::error::Error + Send + Sync + 'stat
     use dptree::case;
 
     let commands = teloxide::filter_command::<Commands, _>()
-        .branch(case![Commands::Start].endpoint(start::start_handler));
+        .branch(case![Commands::Start].endpoint(start::message_handler));
 
     let dialogue = dialogue::enter::<Update, InMemStorage<State>, State, _>()
         .branch(
@@ -21,6 +21,10 @@ pub fn schema() -> UpdateHandler<Box<dyn std::error::Error + Send + Sync + 'stat
         );
 
     let callback_queries = Update::filter_callback_query()
+        .branch(
+            dptree::filter(|q: CallbackQuery| q.data.as_deref() == Some(Callbacks::Start.as_str()))
+                .endpoint(start::callback_handler),
+        )
         .branch(
             dptree::filter(|q: CallbackQuery| q.data.as_deref() == Some(Callbacks::Today.as_str()))
                 .endpoint(weather::today_handler),
