@@ -1,4 +1,5 @@
 pub enum Callbacks {
+    Start,
     Today,
     Tomorrow,
 }
@@ -6,6 +7,7 @@ pub enum Callbacks {
 impl Callbacks {
     pub fn as_str(&self) -> &'static str {
         match self {
+            Callbacks::Start => "start",
             Callbacks::Today => "today",
             Callbacks::Tomorrow => "tomorrow",
         }
