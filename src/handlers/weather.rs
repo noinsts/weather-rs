@@ -12,27 +12,27 @@ use crate::api::models::{WeatherResponse, Forecast};
 use crate::utils::keyboard::get_to_hub;
 
 /// Weather handler type, representing available forecast options.
-enum Handlers {
+enum WeatherPeriod {
     /// Forecast for today.
     Today,
     /// Forecast for tomorrow.
     Tomorrow
 }
 
-impl Handlers {
+impl WeatherPeriod {
     /// Returns localized label for the forecast option.
     fn label(&self) -> &'static str {
         match self {
-            Handlers::Today => "Сьогодні",
-            Handlers::Tomorrow => "Завтра"
+            WeatherPeriod::Today => "Сьогодні",
+            WeatherPeriod::Tomorrow => "Завтра"
         }
     }
 
     /// Returns a selector function that extracts the right forecast
     fn selector(&self) -> fn(&WeatherResponse) -> Option<&Forecast> {
         match self {
-            Handlers::Today => today_weather,
-            Handlers::Tomorrow => tomorrow_weather
+            WeatherPeriod::Today => today_weather,
+            WeatherPeriod::Tomorrow => tomorrow_weather
         }
     }
 }
@@ -134,12 +134,12 @@ fn weather_to_emoji(description: &str) -> &str {
 
 /// Handler for today weather.
 pub async fn today_handler(bot: Bot, callback: CallbackQuery, db: Db) -> HandlerResult {
-    let today = Handlers::Today;
+    let today = WeatherPeriod::Today;
     weather_handler(bot, callback, today.selector(), today.label().to_string(), &db).await
 }
 
 /// Handler for tomorrow weather.
 pub async fn tomorrow_handler(bot: Bot, callback: CallbackQuery, db: Db) -> HandlerResult {
-    let tomorrow = Handlers::Tomorrow;
+    let tomorrow = WeatherPeriod::Tomorrow;
     weather_handler(bot, callback, tomorrow.selector(), tomorrow.label().to_string(), &db).await
 }
