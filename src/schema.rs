@@ -21,6 +21,7 @@ pub fn schema() -> UpdateHandler<Box<dyn std::error::Error + Send + Sync + 'stat
         );
 
     let callback_queries = Update::filter_callback_query()
+        .enter_dialogue::<CallbackQuery, InMemStorage<State>, State>()
         .branch(
             dptree::filter(|q: CallbackQuery| q.data.as_deref() == Some(Callbacks::Start.as_str()))
                 .endpoint(start::callback_handler),
