@@ -93,7 +93,7 @@ where
                 }
                 else {
                     bot.answer_callback_query(callback.id)
-                        .text( "Не вдалося отримати прогноз погоди на сьогодні")
+                        .text( format!("Не вдалося отримати прогноз погоди на {}", label.to_lowercase()))
                         .show_alert(true)
                         .await?;
                     return Ok(());
