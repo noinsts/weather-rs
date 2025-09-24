@@ -2,6 +2,7 @@ use std::env;
 use dotenvy::dotenv;
 use teloxide::prelude::*;
 use teloxide::Bot;
+use teloxide::types::ParseMode;
 
 use crate::db::db::Db;
 use crate::db::queries::get_city;
@@ -82,13 +83,22 @@ where
     if let Some(message) = callback.message {
         match fetch_forecast(&city, &token).await {
             Ok(resp) => {
-                if let Some(today) = selector(&resp) {
-                    bot.edit_message_text(
-                        message.chat().id,
-                        message.id(),
-                        format!("{}: {}, {}", label, today.main.temp, today.weather[0].description)
-                    )
+                if let Some(response) = selector(&resp) {
+                    let desc = response.weather[0].description.clone();
+                    let text = format!(
+                        "🌤️ <b>Погода в {city}</b>\n\n\
+                        🌡️ <b>Температура</b>: {temp}°C\n\
+                        {emoji} {desc}\n\n\
+                        <i>Гарного дня!</i> ☀️",
+                        city=city,
+                        temp=response.main.temp,
+                        emoji=weather_to_emoji(&desc.to_string()),
+                        desc=desc,
+                    );
+
+                    bot.edit_message_text(message.chat().id, message.id(), text)
                         .reply_markup(get_to_hub())
+                        .parse_mode(ParseMode::Html)
                         .await?;
                 }
                 else {
