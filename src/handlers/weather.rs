@@ -12,6 +12,7 @@ use crate::api::models::{WeatherResponse, Forecast};
 use crate::utils::keyboard::get_to_hub;
 
 /// Weather handler type, representing available forecast options.
+#[derive(Debug, Clone, Copy)]
 enum WeatherPeriod {
     /// Forecast for today.
     Today,
@@ -21,7 +22,7 @@ enum WeatherPeriod {
 
 impl WeatherPeriod {
     /// Returns localized label for the forecast option.
-    fn label(&self) -> &'static str {
+    const fn label(&self) -> &'static str {
         match self {
             WeatherPeriod::Today => "Сьогодні",
             WeatherPeriod::Tomorrow => "Завтра"
@@ -29,7 +30,7 @@ impl WeatherPeriod {
     }
 
     /// Returns a selector function that extracts the right forecast
-    fn selector(&self) -> fn(&WeatherResponse) -> Option<&Forecast> {
+    const fn selector(&self) -> fn(&WeatherResponse) -> Option<&Forecast> {
         match self {
             WeatherPeriod::Today => today_weather,
             WeatherPeriod::Tomorrow => tomorrow_weather
@@ -70,6 +71,26 @@ impl WeatherError {
 }
 
 
+/// Configuration for weather service
+struct WeatherConfig {
+    api_key: String,
+}
+
+impl WeatherConfig {
+    /// Creates new weather configuration by reading from environment
+    fn from_env() -> Result<Self, WeatherError> {
+        dotenv().ok();
+
+        let api_key = env::var("WEATHER_API_KEY")
+            .map_err(|_| {
+                eprintln!("WEATHER_API_KEY environment variable not set");
+                WeatherError::MissingApiKey
+            })?;
+
+        Ok(Self { api_key })
+    }
+}
+
 /// Generic weather handler used by both `today_handler` and `tomorrow_handler`.
 ///
 /// Steps:
@@ -88,19 +109,7 @@ async fn weather_handler<F>(
 where
     F: Fn(&WeatherResponse) -> Option<&Forecast>
 {
-    dotenv().ok();
-
-    let token = match env::var("WEATHER_API_KEY") {
-        Ok(v) => v,
-        Err(_) => {
-            eprintln!("WEATHER_API_KEY environment variable not set");
-            bot.answer_callback_query(callback.id)
-                .text("Помилка, зверніться до розробників.")
-                .show_alert(true)
-                .await?;
-            return Ok(())
-        }
-    };
+    let config = WeatherConfig::from_env()?;
 
     let city = match get_city(&db, callback.from.id.0 as i64) {
         Some(c) => c.to_string(),
@@ -114,7 +123,7 @@ where
     };
 
     if let Some(message) = callback.message {
-        match fetch_forecast(&city, &token).await {
+        match fetch_forecast(&city, &config.api_key).await {
             Ok(resp) => {
                 if let Some(response) = selector(&resp) {
                     let desc = response.weather[0].description.clone();
