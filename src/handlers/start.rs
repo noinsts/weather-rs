@@ -1,6 +1,6 @@
 use teloxide::prelude::*;
 use teloxide::types::MessageId;
-use teloxide::types::CallbackQuery;
+use teloxide::types::{CallbackQuery, ParseMode};
 use crate::db::db::Db;
 use crate::db::queries::{get_city, user_exists};
 use crate::states::State;
@@ -22,26 +22,34 @@ where
 
     if user_exists(&db, user_id) {
         let city = get_city(&db, user_id)
-            .unwrap_or_else(|| "unknown".to_string());
+            .unwrap_or_else(|| "невідоме".to_string());
 
-        let text = format!("Hello! Your city is {}!", city);
+        let text = format!(
+            "Привіт!\n\n\
+            🌃 Ваше місто: <b>{}</b>\n\
+            Оберіть дію нижче ⬇️",
+            city
+        );
         let keyboard = get_hub_keyboard();
 
         if source.is_any().is::<CallbackQuery>() {
             if let Some(message_id) = source.message_id() {
                 bot.edit_message_text(chat_id, MessageId(message_id), text)
+                    .parse_mode(ParseMode::Html)
                     .reply_markup(keyboard)
                     .await?;
             }
         }
         else {
             bot.send_message(chat_id, text)
+                .parse_mode(ParseMode::Html)
                 .reply_markup(keyboard)
                 .await?;
         }
     }
     else {
-        let text = "Hello, please, enter ur hometown.";
+        let text = "👋🏻 Привіт!\n\n\
+        Щоб дізнатись прогноз погоди, введіть назву свого міста 🌎";
 
         if source.is_any().is::<CallbackQuery>() {
             if let Some(message_id) = source.message_id() {
