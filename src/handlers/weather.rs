@@ -109,6 +109,19 @@ where
     Ok(())
 }
 
+/// Returns weather emoji
+fn weather_to_emoji(description: &str) -> &str {
+    match description.to_lowercase().as_str() {
+        desc if desc.contains("дощ") => "🌧️",
+        desc if desc.contains("сніг") => "❄️",
+        desc if desc.contains("хмар") || desc.contains("похмуро") => "☁️",
+        desc if desc.contains("ясно") || desc.contains("сонячно") => "☀️",
+        desc if desc.contains("туман") => "🌫️",
+        desc if desc.contains("гроза") => "⛈️",
+        _ => "🌤️", // Default
+    }
+}
+
 /// Handler for today weather.
 pub async fn today_handler(bot: Bot, callback: CallbackQuery, db: Db) -> HandlerResult {
     let today = Handlers::Today;
