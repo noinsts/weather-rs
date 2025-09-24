@@ -93,76 +93,88 @@ impl WeatherConfig {
 
 /// Generic weather handler used by both `today_handler` and `tomorrow_handler`.
 ///
-/// Steps:
-///     - Reads the `WEATHER_API_KEY` from environment.
-///     - Fetcher user's city from the database.
-///     - Calls the weather API and extracts forecast using provided selector.
-///     - Edits the callback message with forecast result and attach "back to hub" keyboard.
-///     - In case of errors (missing API key, no city, API error), responds to the callback query with an error message.
-async fn weather_handler<F>(
+/// 1. Reads the `WEATHER_API_KEY` from environment.
+/// 2. Fetcher user's city from the database.
+/// 3. Calls the weather API and extracts forecast using provided selector.
+/// 4. Edits the callback message with forecast result and attach "back to hub" keyboard.
+/// 5. In case of errors (missing API key, no city, API error), responds to the callback query with an error message.
+async fn weather_handler(
     bot: Bot,
     callback: CallbackQuery,
-    selector: F,
-    label: String,
+    period: WeatherPeriod,
     db: &Db
-) -> HandlerResult
-where
-    F: Fn(&WeatherResponse) -> Option<&Forecast>
-{
-    let config = WeatherConfig::from_env()?;
+) -> HandlerResult {
+    let callback_id = callback.id.clone();
 
-    let city = match get_city(&db, callback.from.id.0 as i64) {
-        Some(c) => c.to_string(),
-        None => {
-            bot.answer_callback_query(callback.id)
-                .text("Ваше рідне місто не знайдено. Спробуйте знову.")
+    match handle_weather_request(&bot, &callback, period, db).await {
+        Ok(_) => {
+            bot.answer_callback_query(callback_id).await?;
+        }
+        Err(e) => {
+            bot.answer_callback_query(callback_id)
+                .text(e.user_message())
                 .show_alert(true)
                 .await?;
-            return Ok(());
-        }
-    };
-
-    if let Some(message) = callback.message {
-        match fetch_forecast(&city, &config.api_key).await {
-            Ok(resp) => {
-                if let Some(response) = selector(&resp) {
-                    let desc = response.weather[0].description.clone();
-                    let text = format!(
-                        "🌤️ <b>Погода в {city}</b>\n\n\
-                        🌡️ <b>Температура</b>: {temp}°C\n\
-                        {emoji} {desc}\n\n\
-                        <i>Гарного дня!</i> ☀️",
-                        city=city,
-                        temp=response.main.temp,
-                        emoji=weather_to_emoji(&desc.to_string()),
-                        desc=desc,
-                    );
-
-                    bot.edit_message_text(message.chat().id, message.id(), text)
-                        .reply_markup(get_to_hub())
-                        .parse_mode(ParseMode::Html)
-                        .await?;
-                }
-                else {
-                    bot.answer_callback_query(callback.id)
-                        .text( format!("Не вдалося отримати прогноз погоди на {}", label.to_lowercase()))
-                        .show_alert(true)
-                        .await?;
-                    return Ok(());
-                }
-            }
-            Err(_) => {
-                bot.send_message(message.chat().id, "Помилка при отриманні даних про погоду.")
-                    .await?;
-            }
         }
     }
-    bot.answer_callback_query(callback.id).await?;
+
     Ok(())
 }
 
+/// Internal handler that processes weather request and returns structured errors
+async fn handle_weather_request(
+    bot: &Bot,
+    callback: &CallbackQuery,
+    period: WeatherPeriod,
+    db: &Db,
+) -> Result<(), WeatherError> {
+    let config = WeatherConfig::from_env()?;
+    let user_id = callback.from.id.0 as i64;
+
+    let city = get_city(db, user_id)
+        .ok_or(WeatherError::CityNotFound)?;
+
+    let message = callback.message
+        .as_ref()
+        .ok_or(WeatherError::MissingMessage)?;
+
+    let weather_response = fetch_forecast(&city, &config.api_key)
+        .await
+        .map_err(|_| WeatherError::ApiFetchError)?;
+
+    let forecast = (period.selector())(&weather_response)
+        .ok_or(WeatherError::NoForecastData)?;
+
+    let formatted_message = format_weather_message(&city, &forecast);
+
+    bot.edit_message_text(message.chat().id, message.id(), formatted_message)
+        .reply_markup(get_to_hub())
+        .parse_mode(ParseMode::Html)
+        .await
+        .map_err(|_| WeatherError::ApiFetchError)?;
+
+    Ok(())
+}
+
+/// Formats weather information into a user-friendly message
+fn format_weather_message(city: &str, response: &Forecast) -> String {
+    let description = &response.weather[0].description;
+    let emoji = weather_to_emoji(description);
+
+    format!(
+        "🌤️ <b>Погода в {city}</b>\n\n\
+        🌡️ <b>Температура</b>: {temp}°C\n\
+        {emoji} {description}\n\n\
+        <i>Гарного дня!</i> ☀️",
+        city=city,
+        temp=response.main.temp,
+        emoji=emoji,
+        description=description,
+    )
+}
+
 /// Returns weather emoji
-fn weather_to_emoji(description: &str) -> &str {
+fn weather_to_emoji(description: &str) -> &'static str {
     match description.to_lowercase().as_str() {
         desc if desc.contains("дощ") => "🌧️",
         desc if desc.contains("сніг") => "❄️",
@@ -176,12 +188,10 @@ fn weather_to_emoji(description: &str) -> &str {
 
 /// Handler for today weather.
 pub async fn today_handler(bot: Bot, callback: CallbackQuery, db: Db) -> HandlerResult {
-    let today = WeatherPeriod::Today;
-    weather_handler(bot, callback, today.selector(), today.label().to_string(), &db).await
+    weather_handler(bot, callback, WeatherPeriod::Today, &db).await
 }
 
 /// Handler for tomorrow weather.
 pub async fn tomorrow_handler(bot: Bot, callback: CallbackQuery, db: Db) -> HandlerResult {
-    let tomorrow = WeatherPeriod::Tomorrow;
-    weather_handler(bot, callback, tomorrow.selector(), tomorrow.label().to_string(), &db).await
+    weather_handler(bot, callback, WeatherPeriod::Tomorrow, &db).await
 }
