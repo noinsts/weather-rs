@@ -37,6 +37,39 @@ impl WeatherPeriod {
     }
 }
 
+/// Errors that can occur during weather handler
+#[derive(Debug)]
+enum WeatherError {
+    /// API key not found in environment
+    MissingApiKey,
+
+    /// User's city not found in database
+    CityNotFound,
+
+    /// Failed to fetch weather data
+    ApiFetchError,
+
+    /// No forecast data available for requested period
+    NoForecastData,
+
+    /// Missing message in callback query
+    MissingMessage
+}
+
+impl WeatherError {
+    /// Returns user-friendly error message
+    const fn user_message(&self) -> &'static str {
+        match self {
+            WeatherError::MissingApiKey => "Помилка сервісу, зверніться до розробників",
+            WeatherError::CityNotFound => "Ваше місто не знайдено. Спробуйте встановити його знову.",
+            WeatherError::ApiFetchError => "Не вдалося отримати дані про погоду. Спробуйте пізніше",
+            WeatherError::NoForecastData => "Прогноз погоди недоступний для обраного періоду",
+            WeatherError::MissingMessage => "Помилка обробки запиту.",
+        }
+    }
+}
+
+
 /// Generic weather handler used by both `today_handler` and `tomorrow_handler`.
 ///
 /// Steps:
