@@ -8,6 +8,10 @@ use crate::traits::chat::ChatSource;
 use crate::types::{HandlerResult, MyDialogue};
 use crate::utils::keyboard::get_hub_keyboard;
 
+/// Universal handler for both messages and callback queries.
+///
+/// - If the user exists in the database -> displays the saved city.
+/// - If the user does not exist -> asks the user to enter their city and updates the dialogue state.
 async fn handler<T>(
         bot: Bot,
         source: T,
@@ -66,10 +70,12 @@ where
     Ok(())
 }
 
+/// Handles /start message from users.
 pub async fn message_handler(bot: Bot, msg: Message, dialogue: MyDialogue, db: Db) -> HandlerResult {
     handler(bot, msg, dialogue, db).await
 }
 
+/// Handles Start button callbacks from inline keyboards.
 pub async fn callback_handler(bot: Bot, callback: CallbackQuery, dialogue: MyDialogue, db: Db) -> HandlerResult {
     handler(bot, callback, dialogue, db).await
 }
