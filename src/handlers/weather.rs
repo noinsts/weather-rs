@@ -173,7 +173,7 @@ fn format_weather_message(city: &str, period: WeatherPeriod, response: &Forecast
         feels_like=response.main.feels_like as i32,
         humidity=response.main.humidity,
         emoji=emoji,
-        description=description,
+        description=capitalize_first_letter(description),
     )
 }
 
@@ -187,6 +187,15 @@ fn weather_to_emoji(description: &str) -> &'static str {
         desc if desc.contains("туман") => "🌫️",
         desc if desc.contains("гроза") => "⛈️",
         _ => "🌤️", // Default
+    }
+}
+
+/// Function for capitalizing the first letter of string
+fn capitalize_first_letter(s: &str) -> String {
+    let mut chars = s.chars();
+    match chars.next() {
+        None => String::new(),
+        Some(f) => f.to_uppercase().collect::<String>() + chars.as_str(),
     }
 }
 
