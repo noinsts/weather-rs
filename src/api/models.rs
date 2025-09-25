@@ -16,6 +16,7 @@ pub struct Forecast {
 pub struct Main {
     pub temp: f64,
     pub feels_like: f64,
+    pub humidity: i64,
 }
 
 #[derive(Debug, Deserialize)]
