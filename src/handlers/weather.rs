@@ -163,10 +163,9 @@ fn format_weather_message(city: &str, period: WeatherPeriod, response: &Forecast
 
     format!(
         "🌤️ <b>Погода в {city} на {day}</b>\n\n\
-        🌡️ <b>Температура</b>: {temp}°C\n\
-        🫠 <b>Відчувається як</b>: {feels_like}°C\n\
-        <b>Вологість</b>: {humidity}%\n\
         {emoji} {description}\n\n\
+        🌡️ <b>Температура</b>: {temp}°C (відчувається як {feels_like}°C)\n\
+        💧 <b>Вологість</b>: {humidity}%\n\n\
         <i>Гарного дня!</i> ☀️",
         city=city,
         day=period.label().to_lowercase(),
