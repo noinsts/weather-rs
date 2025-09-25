@@ -15,6 +15,7 @@ pub struct Forecast {
 #[derive(Debug, Deserialize)]
 pub struct Main {
     pub temp: f64,
+    pub feels_like: f64,
 }
 
 #[derive(Debug, Deserialize)]

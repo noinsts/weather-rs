@@ -164,10 +164,12 @@ fn format_weather_message(city: &str, response: &Forecast) -> String {
     format!(
         "🌤️ <b>Погода в {city}</b>\n\n\
         🌡️ <b>Температура</b>: {temp}°C\n\
+        🫠 <b>Відчувається як</b>: {feels_like}°C\n\
         {emoji} {description}\n\n\
         <i>Гарного дня!</i> ☀️",
         city=city,
         temp=response.main.temp as i32,
+        feels_like=response.main.feels_like as i32,
         emoji=emoji,
         description=description,
     )
