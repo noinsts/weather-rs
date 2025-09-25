@@ -145,7 +145,7 @@ async fn handle_weather_request(
     let forecast = (period.selector())(&weather_response)
         .ok_or(WeatherError::NoForecastData)?;
 
-    let formatted_message = format_weather_message(&city, &forecast);
+    let formatted_message = format_weather_message(&city, period, &forecast);
 
     bot.edit_message_text(message.chat().id, message.id(), formatted_message)
         .reply_markup(get_to_hub())
@@ -157,17 +157,18 @@ async fn handle_weather_request(
 }
 
 /// Formats weather information into a user-friendly message
-fn format_weather_message(city: &str, response: &Forecast) -> String {
+fn format_weather_message(city: &str, period: WeatherPeriod, response: &Forecast) -> String {
     let description = &response.weather[0].description;
     let emoji = weather_to_emoji(description);
 
     format!(
-        "🌤️ <b>Погода в {city}</b>\n\n\
+        "🌤️ <b>Погода в {city} на {day}</b>\n\n\
         🌡️ <b>Температура</b>: {temp}°C\n\
         🫠 <b>Відчувається як</b>: {feels_like}°C\n\
         {emoji} {description}\n\n\
         <i>Гарного дня!</i> ☀️",
         city=city,
+        day=period.label().to_lowercase(),
         temp=response.main.temp as i32,
         feels_like=response.main.feels_like as i32,
         emoji=emoji,
