@@ -1,7 +1,15 @@
 use chrono::Utc;
-use crate::db::db::Db;
 use rusqlite::params;
 
+use crate::db::db::Db;
+
+/// Checks if a user exists in the `users` table
+///
+/// # Arguments
+/// * `db` - Reference to the database connection wrapper.
+/// * `user_id` - Telegram user ID.
+///
+/// Returns `true` if the user exists, otherwise `false`
 pub fn user_exists(db: &Db, user_id: i64) -> bool {
     let conn = db.lock().unwrap();
     let exists: bool = conn
@@ -14,6 +22,13 @@ pub fn user_exists(db: &Db, user_id: i64) -> bool {
     exists
 }
 
+/// Retrieves the city associated with a user.
+///
+/// # Arguments
+/// * `db` - Reference to the database connection wrapper.
+/// * `user_id` - Telegram user ID.
+///
+/// Returns `Some(city)` if the user has a city, otherwise `None`.
 pub fn get_city(db: &Db, user_id: i64) -> Option<String> {
     let conn = db.lock().unwrap();
     let result: rusqlite::Result<String> = conn.query_row(
@@ -24,6 +39,12 @@ pub fn get_city(db: &Db, user_id: i64) -> Option<String> {
     result.ok()
 }
 
+/// Inserts a new user or updates the city of an existing user.
+///
+/// # Arguments
+/// * `db` - Reference to the database connection wrapper.
+/// * `user_id` - Telegram user ID.
+/// * `city` - Name of the city to insert or update.
 pub fn upsert_city(db: &Db, user_id: i64, city: &String) {
     let conn = db.lock().unwrap();
     let now = Utc::now().naive_utc();
