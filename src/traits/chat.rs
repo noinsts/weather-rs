@@ -2,13 +2,22 @@ use std::any::Any;
 
 use teloxide::types::{Message, CallbackQuery};
 
+/// A trait that provides a common interface for extracting identifiers
+///
+/// Implemented for:
+/// - ['Message'] (regular message)
+/// - ['CallbackQuery'] (button presses)
 pub trait ChatSource {
+    /// Returns the chat ID
     fn chat_id(&self) -> i64;
 
+    /// Returns the message ID if available.
     fn message_id(&self) -> Option<i32>;
 
+    /// Returns the user ID if available.
     fn user_id(&self) -> i64;
 
+    /// Allows treating the object as a dynamic type.
     fn is_any(&self) -> &dyn Any;
 }
 
