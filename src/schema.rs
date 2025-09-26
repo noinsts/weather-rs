@@ -7,6 +7,14 @@ use crate::enums::{Callbacks, Commands};
 use crate::handlers::{receive_city, start, weather};
 use crate::states::State;
 
+/// Bot's update handling schema.
+///
+/// Branches:
+/// - Commands
+/// - Dialogue
+/// - Callback queries
+///
+/// Returns an ['UpdateHandler'] tree ready for the dispatcher.
 pub fn schema() -> UpdateHandler<Box<dyn std::error::Error + Send + Sync + 'static>> {
     use dptree::case;
 
