@@ -2,6 +2,7 @@ use teloxide::types::{InlineKeyboardButton, InlineKeyboardMarkup};
 
 use crate::enums::Callbacks;
 
+/// Returns the main hub keyboard with options for today's and tomorrow's weather.
 pub fn get_hub_keyboard() -> InlineKeyboardMarkup {
     InlineKeyboardMarkup::new(vec![
         vec![InlineKeyboardButton::callback("Today", Callbacks::Today.as_str())],
@@ -9,6 +10,7 @@ pub fn get_hub_keyboard() -> InlineKeyboardMarkup {
     ])
 }
 
+/// Returns a keyboard with a single "back" button that leads to the hub.
 pub fn get_to_hub() -> InlineKeyboardMarkup {
     InlineKeyboardMarkup::new(vec![
         vec![InlineKeyboardButton::callback("Back", Callbacks::Start.as_str())],
