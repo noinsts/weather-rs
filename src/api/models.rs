@@ -10,6 +10,7 @@ pub struct Forecast {
     pub dt_txt: String,
     pub main: Main,
     pub weather: Vec<Weather>,
+    pub wind: Wind,
 }
 
 #[derive(Debug, Deserialize)]
@@ -22,4 +23,10 @@ pub struct Main {
 #[derive(Debug, Deserialize)]
 pub struct Weather {
     pub description: String,
+}
+
+
+#[derive(Debug, Deserialize)]
+pub struct Wind {
+    pub speed: f64,
 }
