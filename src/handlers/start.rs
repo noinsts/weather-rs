@@ -36,27 +36,34 @@ where
     let user_id = source.user_id();
     let chat_id = ChatId(source.chat_id());
 
-    if user_exists(&db, user_id) {
-        let city = get_city(&db, user_id)
-            .unwrap_or_else(|| "невідоме".to_string());
-
-        let text = format!(
-            "👋 <b>Привіт!</b>\n\n\
-            🏙️ <b>Ваше місто:</b> {city}\n\n\
-            🔹 Оберіть дію нижче ⬇️",
-            city=city
-        );
-
-        let keyboard = get_hub_keyboard();
-        send_or_edit(&bot, &source, chat_id, &text.to_string(), Some(keyboard)).await?;
+    let user_city = if user_exists(&db, user_id) {
+        get_city(&db, user_id)
     }
     else {
-        let text = "👋🏻 Привіт!\n\n\
-        Щоб дізнатись прогноз погоди, введіть назву вашого міста";
+        None
+    };
 
-        send_or_edit(&bot, &source, chat_id, text, None).await?;
-        dialogue.update(State::ReceiveCity).await?;
+    match user_city {
+        Some(city) => {
+            let text = format!(
+                "👋 <b>Привіт!</b>\n\n\
+            🏙️ <b>Ваше місто:</b> {city}\n\n\
+            🔹 Оберіть дію нижче ⬇️",
+                city=city
+            );
+
+            let keyboard = get_hub_keyboard();
+            send_or_edit(&bot, &source, chat_id, &text, Some(keyboard)).await?;
+        }
+        None => {
+            let text = "👋🏻 Привіт!\n\n\
+            Щоб дізнатись прогноз погоди, введіть назву вашого міста";
+
+            send_or_edit(&bot, &source, chat_id, text, None).await?;
+            dialogue.update(State::ReceiveCity).await?;
+        }
     }
+
     Ok(())
 }
 
@@ -90,6 +97,7 @@ async fn send_or_edit<T>(
 where
     T: ChatSource
 {
+    // Check if the update source is a CallbackQuery
     if source.is_any().is::<CallbackQuery>() {
         if let Some(message_id) = source.message_id() {
             let mut req = bot.edit_message_text(chat_id, MessageId(message_id), text)
