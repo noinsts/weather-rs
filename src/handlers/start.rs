@@ -13,6 +13,17 @@ use crate::utils::keyboard::get_hub_keyboard;
 ///
 /// - If the user exists in the database -> displays the saved city.
 /// - If the user does not exist -> asks the user to enter their city and updates the dialogue state.
+///
+/// # Arguments
+///
+/// - `bot` - The bot instance.
+/// - `source` - The update source (message or callback query).
+/// - `dialogue` - Dialogue state manager.
+/// - `db` - Shared database connection.
+///
+/// # Returns
+///
+/// - [`HandlerResult`] - Ok(()) if handled successfully, otherwise an error.
 async fn handler<T>(
         bot: Bot,
         source: T,
