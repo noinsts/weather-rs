@@ -1,4 +1,5 @@
 use std::env;
+use std::fmt::format;
 use dotenvy::dotenv;
 use teloxide::prelude::*;
 use teloxide::Bot;
@@ -160,20 +161,26 @@ async fn handle_weather_request(
 fn format_weather_message(city: &str, period: WeatherPeriod, response: &Forecast) -> String {
     let description = &response.weather[0].description;
     let emoji = weather_to_emoji(description);
+    let wind_speed = if response.wind.speed as i32 == 0 {
+        "відсутній".to_string()
+    }
+    else {
+        format!("{} км/год", response.wind.speed as i32)
+    };
 
     format!(
         "🌤️ <b>Погода в {city} на {day}</b>\n\n\
         {emoji} {description}\n\n\
         🌡️ <b>Температура</b>: {temp}°C (відчувається як {feels_like}°C)\n\
         💧 <b>Вологість</b>: {humidity}%\n\
-        💨 <b>Вітер</b>: {wind_speed} км/год\n\n\
+        💨 <b>Вітер</b>: {wind_speed}\n\n\
         <i>Гарного дня!</i> ☀️",
         city=city,
         day=period.label().to_lowercase(),
         temp=response.main.temp as i32,
         feels_like=response.main.feels_like as i32,
         humidity=response.main.humidity,
-        wind_speed=response.wind.speed as i32,
+        wind_speed=wind_speed,
         emoji=emoji,
         description=capitalize_first_letter(description),
     )
