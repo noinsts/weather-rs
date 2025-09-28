@@ -1,5 +1,4 @@
 use std::env;
-use std::fmt::format;
 use dotenvy::dotenv;
 use teloxide::prelude::*;
 use teloxide::Bot;
@@ -11,6 +10,7 @@ use crate::types::HandlerResult;
 use crate::api::{fetch_forecast, today_weather, tomorrow_weather};
 use crate::api::models::{WeatherResponse, Forecast};
 use crate::utils::keyboard::get_to_hub;
+use crate::utils::string::capitalize_first_letter;
 
 /// Weather handler type, representing available forecast options.
 #[derive(Debug, Clone, Copy)]
@@ -196,15 +196,6 @@ fn weather_to_emoji(description: &str) -> &'static str {
         desc if desc.contains("туман") => "🌫️",
         desc if desc.contains("гроза") => "⛈️",
         _ => "🌤️", // Default
-    }
-}
-
-/// Function for capitalizing the first letter of string
-fn capitalize_first_letter(s: &str) -> String {
-    let mut chars = s.chars();
-    match chars.next() {
-        None => String::new(),
-        Some(f) => f.to_uppercase().collect::<String>() + chars.as_str(),
     }
 }
 
