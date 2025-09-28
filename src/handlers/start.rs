@@ -1,6 +1,5 @@
 use teloxide::prelude::*;
-use teloxide::types::{InlineKeyboardMarkup, MessageId};
-use teloxide::types::{CallbackQuery, ParseMode};
+use teloxide::types::CallbackQuery;
 
 use crate::db::db::Db;
 use crate::db::queries::{get_city, user_exists};
@@ -8,6 +7,7 @@ use crate::states::State;
 use crate::traits::chat::ChatSource;
 use crate::types::{HandlerResult, MyDialogue};
 use crate::utils::keyboard::get_hub_keyboard;
+use crate::utils::chat::send_or_edit;
 
 /// Universal handler for both messages and callback queries.
 ///
@@ -62,63 +62,6 @@ where
             send_or_edit(&bot, &source, chat_id, text, None).await?;
             dialogue.update(State::ReceiveCity).await?;
         }
-    }
-
-    Ok(())
-}
-
-/// Sends or edits a message depending on the update source.
-///
-/// - If `source` is a [`CallbackQuery`], the existing message will be edited.
-/// - Otherwise, a new message will be sent.
-/// - All messages are sent with [`ParseMode::Html`] enabled, so HTML tags
-///   (e.g. `<b>`, `<i>`, `<u>`) are supported in the text.
-///
-/// Optionally attaches an inline keyboard if provided.
-///
-/// # Arguments
-/// * `bot` - Reference to the [`Bot`] instance used to send or edit the message.
-/// * `source` - Any type implementing [`ChatSource`] (`Message` or `CallbackQuery`).
-/// * `chat_id` - The target chat ID where the message will be sent or edited.
-/// * `text` - The message content. Supports HTML formatting.
-/// * `keyboard` - Optional [`InlineKeyboardMarkup`].
-///   If `Some(kb)` → the keyboard is attached,
-///   If `None` → no keyboard is included.
-///
-/// # Returns
-/// * [`HandlerResult`] - Ok(()) if successful, or an error if the Telegram API call fails.
-async fn send_or_edit<T>(
-    bot: &Bot,
-    source: &T,
-    chat_id: ChatId,
-    text: &str,
-    keyboard: Option<InlineKeyboardMarkup>,
-) -> HandlerResult
-where
-    T: ChatSource
-{
-    // Check if the update source is a CallbackQuery
-    if source.is_any().is::<CallbackQuery>() {
-        if let Some(message_id) = source.message_id() {
-            let mut req = bot.edit_message_text(chat_id, MessageId(message_id), text)
-                .parse_mode(ParseMode::Html);
-
-            if let Some(keyboard) = keyboard {
-                req = req.reply_markup(keyboard);
-            }
-
-            req.await?;
-        }
-    }
-    else {
-        let mut req = bot.send_message(chat_id, text)
-            .parse_mode(ParseMode::Html);
-
-        if let Some(keyboard) = keyboard {
-            req = req.reply_markup(keyboard);
-        }
-
-        req.await?;
     }
 
     Ok(())
