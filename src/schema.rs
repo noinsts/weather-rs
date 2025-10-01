@@ -4,7 +4,7 @@ use teloxide::dptree;
 use teloxide::prelude::*;
 
 use crate::enums::{Callbacks, Commands};
-use crate::handlers::{receive_city, start, weather};
+use crate::handlers::{receive_city, start, weather, settings};
 use crate::states::State;
 
 /// Bot's update handling schema.
@@ -41,6 +41,10 @@ pub fn schema() -> UpdateHandler<Box<dyn std::error::Error + Send + Sync + 'stat
         .branch(
             dptree::filter(|q: CallbackQuery| q.data.as_deref() == Some(Callbacks::Tomorrow.as_str()))
                 .endpoint(weather::tomorrow_handler),
+        )
+        .branch(
+            dptree::filter(|q: CallbackQuery| q.data.as_deref() == Some(Callbacks::SettingsHub.as_str()))
+                .endpoint(settings::hub::handler),
         );
 
     dptree::entry()
