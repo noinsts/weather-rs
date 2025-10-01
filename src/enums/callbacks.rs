@@ -5,6 +5,7 @@ pub enum Callbacks {
 
     // Settings
     SettingsHub,
+    SelectLanguage,
 }
 
 impl Callbacks {
@@ -14,6 +15,7 @@ impl Callbacks {
             Callbacks::Today => "today",
             Callbacks::Tomorrow => "tomorrow",
             Callbacks::SettingsHub => "settings-hub",
+            Callbacks::SelectLanguage => "select-language",
         }
     }
 }
