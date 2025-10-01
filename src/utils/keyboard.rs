@@ -17,3 +17,11 @@ pub fn get_to_hub() -> InlineKeyboardMarkup {
         vec![InlineKeyboardButton::callback("Back", Callbacks::Start.as_str())],
     ])
 }
+
+/// Returns settings hub keyboard
+pub fn get_settings_hub() -> InlineKeyboardMarkup {
+    InlineKeyboardMarkup::new(vec![
+        vec![InlineKeyboardButton::callback("Select language", Callbacks::SelectLanguage.as_str())],
+        vec![InlineKeyboardButton::callback("Back", Callbacks::Start.as_str())],
+    ])
+}
