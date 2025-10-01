@@ -2,6 +2,7 @@ use teloxide::prelude::*;
 use teloxide::types::CallbackQuery;
 
 use crate::types::HandlerResult;
+use crate::utils::keyboard::get_settings_hub;
 
 pub async fn handler(bot: Bot, callback: CallbackQuery) -> HandlerResult {
     if let Some(message) = callback.message {
@@ -9,6 +10,7 @@ pub async fn handler(bot: Bot, callback: CallbackQuery) -> HandlerResult {
         let message_id = message.id();
 
         bot.edit_message_text(chat_id, message_id, "Hello")
+            .reply_markup(get_settings_hub())
             .await?;
     }
     Ok(())
