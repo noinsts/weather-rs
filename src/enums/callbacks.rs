@@ -2,6 +2,9 @@ pub enum Callbacks {
     Start,
     Today,
     Tomorrow,
+
+    // Settings
+    SettingsHub,
 }
 
 impl Callbacks {
@@ -10,6 +13,7 @@ impl Callbacks {
             Callbacks::Start => "start",
             Callbacks::Today => "today",
             Callbacks::Tomorrow => "tomorrow",
+            Callbacks::SettingsHub => "settings-hub",
         }
     }
 }
