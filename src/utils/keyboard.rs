@@ -7,6 +7,7 @@ pub fn get_hub_keyboard() -> InlineKeyboardMarkup {
     InlineKeyboardMarkup::new(vec![
         vec![InlineKeyboardButton::callback("Today", Callbacks::Today.as_str())],
         vec![InlineKeyboardButton::callback("Tomorrow", Callbacks::Tomorrow.as_str())],
+        vec![InlineKeyboardButton::callback("Settings", Callbacks::SettingsHub.as_str())],
     ])
 }
 
