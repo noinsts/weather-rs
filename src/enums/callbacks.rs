@@ -6,6 +6,10 @@ pub enum Callbacks {
     // Settings
     SettingsHub,
     SelectLanguage,
+    
+    // Languages
+    English,
+    Ukrainian,
 }
 
 impl Callbacks {
@@ -16,6 +20,8 @@ impl Callbacks {
             Callbacks::Tomorrow => "tomorrow",
             Callbacks::SettingsHub => "settings-hub",
             Callbacks::SelectLanguage => "select-language",
+            Callbacks::English => "english",
+            Callbacks::Ukrainian => "ukrainian",
         }
     }
 }
