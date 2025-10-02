@@ -45,6 +45,10 @@ pub fn schema() -> UpdateHandler<Box<dyn std::error::Error + Send + Sync + 'stat
         .branch(
             dptree::filter(|q: CallbackQuery| q.data.as_deref() == Some(Callbacks::SettingsHub.as_str()))
                 .endpoint(settings::hub::handler),
+        )
+        .branch(
+            dptree::filter(|q: CallbackQuery| q.data.as_deref() == Some(Callbacks::SelectLanguage.as_str()))
+                .endpoint(settings::language::hub::handler),
         );
 
     dptree::entry()
