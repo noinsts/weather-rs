@@ -5,6 +5,7 @@ use diesel::prelude::*;
 use diesel::ExpressionMethods;
 use diesel_async::RunQueryDsl;
 
+use crate::enums::languages::Languages;
 use super::models::UserData;
 use super::pool::DbPool;
 use super::schema::users;
@@ -78,6 +79,7 @@ impl UserQueries {
             .values(&UserData {
                 id: user_id,
                 city: city.to_string(),
+                language: Languages::default().as_str().to_string(),
                 created_at: now,
                 updated_at: now,
             })

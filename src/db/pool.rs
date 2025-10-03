@@ -27,6 +27,7 @@ pub async fn init_db(database_url: &str) -> Result<DbPool, Box<dyn Error>> {
         "CREATE TABLE IF NOT EXISTS users (\
             id BIGINT PRIMARY KEY,\
             city TEXT NOT NULL,\
+            language TEXT NOT NULL,\
             created_at TIMESTAMP NOT NULL,\
             updated_at TIMESTAMP NOT NULL\
         )"
