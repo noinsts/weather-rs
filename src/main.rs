@@ -13,7 +13,7 @@ use dotenvy::dotenv;
 use teloxide::dispatching::dialogue::InMemStorage;
 use teloxide::prelude::*;
 
-use crate::db::db::init_db;
+use crate::db::pool::init_db;
 use crate::schema::schema;
 use crate::states::State;
 
@@ -23,7 +23,7 @@ use crate::states::State;
 /// 1. Loads environment variables from `.env` file.
 /// 2. Reads the Telegram bot token from `TELEGRAM_TOKEN`.
 /// 3. Initializes the bot instance with `Bot::new`.
-/// 4. Initializes the SQLite database `users.db`.
+/// 4. Initializes the PostgreSQL database `DATABASE_URL`.
 /// 5. Sets up in-memory dialogue storage for user states.
 /// 6. Builds the `Dispatcher` with the bot, update schema, and dependencies.
 /// 7. Starts polling updates and handlers Ctrl+C gracefully.
@@ -38,9 +38,14 @@ async fn main() {
     // Initializes the bot instance
     let bot = Bot::new(token);
 
-    // Initialize SQLite database
-    let db = init_db("users.db")
-        .expect("Couldn't initialize database");
+    // Read database url
+    let database_url = env::var("DATABASE_URL")
+        .expect("DATABASE_URL not found in .env file");
+
+    // Initialize the database connection pool
+    let pool = init_db(&database_url)
+        .await
+        .expect("Could not initialize database pool");
 
     // Create in-memory storage for user dialogue states
     let storage = InMemStorage::<State>::new();
@@ -48,7 +53,7 @@ async fn main() {
     // Build and run the dispatcher
     Dispatcher::builder(bot, schema())
         .enable_ctrlc_handler()
-        .dependencies(dptree::deps![db.clone(), storage.clone()])
+        .dependencies(dptree::deps![pool.clone(), storage.clone()])
         .build()
         .dispatch()
         .await;
