@@ -2,8 +2,8 @@ use teloxide::prelude::*;
 use teloxide::Bot;
 use teloxide::types::Message;
 
-use crate::db::db::Db;
-use crate::db::queries::upsert_city;
+use crate::db::pool::DbPool;
+use crate::db::queries::UserQueries;
 use crate::handlers::start;
 use crate::types::{HandlerResult, MyDialogue};
 
@@ -17,7 +17,7 @@ use crate::types::{HandlerResult, MyDialogue};
 /// * `dialogue` - Dialogue state for the user.
 /// * `msg` - Incoming message containing the city.
 /// * `db` - Database connection wrapper.
-pub async fn receive_city_handler(bot: Bot, dialogue: MyDialogue, msg: Message, db: Db) -> HandlerResult {
+pub async fn receive_city_handler(bot: Bot, dialogue: MyDialogue, msg: Message, db: DbPool) -> HandlerResult {
     let user_id = match msg.from {
         Some(ref user) => user.id.0 as i64,
         None => {
@@ -27,7 +27,7 @@ pub async fn receive_city_handler(bot: Bot, dialogue: MyDialogue, msg: Message, 
 
     match msg.text() {
         Some(city) if !city.trim().is_empty() => {
-            upsert_city(&db, user_id, &city.to_string());
+            UserQueries::upsert_city(&db, user_id, &city.to_string()).await?;
             bot.send_message(msg.chat.id, "✅ Місто збережено успішно!").await?;
             let _ = dialogue.exit().await?;
             start::message_handler(bot, msg, dialogue, db).await?;

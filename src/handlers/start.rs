@@ -1,8 +1,8 @@
 use teloxide::prelude::*;
 use teloxide::types::CallbackQuery;
 
-use crate::db::db::Db;
-use crate::db::queries::{get_city, user_exists};
+use crate::db::pool::DbPool;
+use crate::db::queries::UserQueries;
 use crate::states::State;
 use crate::traits::chat::ChatSource;
 use crate::types::{HandlerResult, MyDialogue};
@@ -28,7 +28,7 @@ async fn handler<T>(
         bot: Bot,
         source: T,
         dialogue: MyDialogue,
-        db: Db
+        db: DbPool
 ) -> HandlerResult
 where
     T: ChatSource
@@ -36,12 +36,7 @@ where
     let user_id = source.user_id();
     let chat_id = ChatId(source.chat_id());
 
-    let user_city = if user_exists(&db, user_id) {
-        get_city(&db, user_id)
-    }
-    else {
-        None
-    };
+    let user_city = UserQueries::get_city(&db, user_id).await;
 
     match user_city {
         Some(city) => {
@@ -68,11 +63,11 @@ where
 }
 
 /// Handles /start message from users.
-pub async fn message_handler(bot: Bot, msg: Message, dialogue: MyDialogue, db: Db) -> HandlerResult {
+pub async fn message_handler(bot: Bot, msg: Message, dialogue: MyDialogue, db: DbPool) -> HandlerResult {
     handler(bot, msg, dialogue, db).await
 }
 
 /// Handles "Start" button callbacks from inline keyboards.
-pub async fn callback_handler(bot: Bot, callback: CallbackQuery, dialogue: MyDialogue, db: Db) -> HandlerResult {
+pub async fn callback_handler(bot: Bot, callback: CallbackQuery, dialogue: MyDialogue, db: DbPool) -> HandlerResult {
     handler(bot, callback, dialogue, db).await
 }

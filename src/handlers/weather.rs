@@ -4,11 +4,11 @@ use teloxide::prelude::*;
 use teloxide::Bot;
 use teloxide::types::ParseMode;
 
-use crate::db::db::Db;
-use crate::db::queries::get_city;
+use crate::db::pool::DbPool;
 use crate::types::HandlerResult;
 use crate::api::{fetch_forecast, today_weather, tomorrow_weather};
 use crate::api::models::{WeatherResponse, Forecast};
+use crate::db::queries::UserQueries;
 use crate::utils::keyboard::get_to_hub;
 use crate::utils::string::capitalize_first_letter;
 
@@ -103,7 +103,7 @@ async fn weather_handler(
     bot: Bot,
     callback: CallbackQuery,
     period: WeatherPeriod,
-    db: &Db
+    db: &DbPool
 ) -> HandlerResult {
     let callback_id = callback.id.clone();
 
@@ -127,12 +127,13 @@ async fn handle_weather_request(
     bot: &Bot,
     callback: &CallbackQuery,
     period: WeatherPeriod,
-    db: &Db,
+    db: &DbPool,
 ) -> Result<(), WeatherError> {
     let config = WeatherConfig::from_env()?;
     let user_id = callback.from.id.0 as i64;
 
-    let city = get_city(db, user_id)
+    let city = UserQueries::get_city(db, user_id)
+        .await
         .ok_or(WeatherError::CityNotFound)?;
 
     let message = callback.message
@@ -200,11 +201,11 @@ fn weather_to_emoji(description: &str) -> &'static str {
 }
 
 /// Handler for today weather.
-pub async fn today_handler(bot: Bot, callback: CallbackQuery, db: Db) -> HandlerResult {
+pub async fn today_handler(bot: Bot, callback: CallbackQuery, db: DbPool) -> HandlerResult {
     weather_handler(bot, callback, WeatherPeriod::Today, &db).await
 }
 
 /// Handler for tomorrow weather.
-pub async fn tomorrow_handler(bot: Bot, callback: CallbackQuery, db: Db) -> HandlerResult {
+pub async fn tomorrow_handler(bot: Bot, callback: CallbackQuery, db: DbPool) -> HandlerResult {
     weather_handler(bot, callback, WeatherPeriod::Tomorrow, &db).await
 }
