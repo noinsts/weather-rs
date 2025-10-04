@@ -1,13 +1,16 @@
+use fluent_bundle::FluentArgs;
 use teloxide::prelude::*;
 use teloxide::types::CallbackQuery;
 
 use crate::db::pool::DbPool;
 use crate::db::queries::UserQueries;
+use crate::enums::languages::Languages;
 use crate::states::State;
 use crate::traits::chat::ChatSource;
 use crate::types::{HandlerResult, MyDialogue};
 use crate::utils::keyboard::get_hub_keyboard;
 use crate::utils::chat::send_or_edit;
+use crate::utils::locales::get_text;
 
 /// Universal handler for both messages and callback queries.
 ///
@@ -36,25 +39,22 @@ where
     let user_id = source.user_id();
     let chat_id = ChatId(source.chat_id());
 
-    let user_city = UserQueries::get_city(&db, user_id).await;
+    let user = UserQueries::get_user(&db, user_id).await;
 
-    match user_city {
-        Some(city) => {
-            let text = format!(
-                "👋 <b>Привіт!</b>\n\n\
-            🏙️ <b>Ваше місто:</b> {city}\n\n\
-            🔹 Оберіть дію нижче ⬇️",
-                city=city
-            );
+    match user {
+        Some(user) => {
+            let mut args = FluentArgs::new();
+            args.set("city", user.city);
+            let lang = Languages::from_str(&user.language)
+                .unwrap_or(Languages::default());
+            let text = get_text(lang, "hub-message", Some(&args));
 
             let keyboard = get_hub_keyboard();
             send_or_edit(&bot, &source, chat_id, &text, Some(keyboard)).await?;
         }
         None => {
-            let text = "👋🏻 Привіт!\n\n\
-            Щоб дізнатись прогноз погоди, введіть назву вашого міста";
-
-            send_or_edit(&bot, &source, chat_id, text, None).await?;
+            let text = get_text(Languages::default(), "start", None);
+            send_or_edit(&bot, &source, chat_id, &text.to_string(), None).await?;
             dialogue.update(State::ReceiveCity).await?;
         }
     }
