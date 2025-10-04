@@ -132,7 +132,7 @@ async fn handle_weather_request(
     let config = WeatherConfig::from_env()?;
     let user_id = callback.from.id.0 as i64;
 
-    let city = UserQueries::get_city(db, user_id)
+    let user = UserQueries::get_user(db, user_id)
         .await
         .ok_or(WeatherError::CityNotFound)?;
 
@@ -140,14 +140,14 @@ async fn handle_weather_request(
         .as_ref()
         .ok_or(WeatherError::MissingMessage)?;
 
-    let weather_response = fetch_forecast(&city, &config.api_key)
+    let weather_response = fetch_forecast(&user.city, &config.api_key)
         .await
         .map_err(|_| WeatherError::ApiFetchError)?;
 
-    let forecast = (period.selector())(&weather_response)
+    let forecast = period.selector()(&weather_response)
         .ok_or(WeatherError::NoForecastData)?;
 
-    let formatted_message = format_weather_message(&city, period, &forecast);
+    let formatted_message = format_weather_message(&user.city, period, &forecast);
 
     bot.edit_message_text(message.chat().id, message.id(), formatted_message)
         .reply_markup(get_to_hub())
