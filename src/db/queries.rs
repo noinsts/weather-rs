@@ -72,4 +72,32 @@ impl UserQueries {
 
         Ok(())
     }
+
+    /// Updates the language preference for a user.
+    ///
+    /// # Arguments
+    /// 
+    /// - `pool` - Shared database connection pool.
+    /// - `user_id` - The ID of the user to update.
+    /// - `lang` - the language code to set (e.g., "en", "uk").
+    ///
+    /// # Returns
+    ///
+    /// - `Ok(())` if the database succeed.
+    /// - `Err` if a database error occurs.
+    pub async fn set_lang(pool: &DbPool, user_id: i64, lang: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
+        let mut conn = pool.get().await?;
+        let now = Utc::now().naive_utc();
+
+        diesel::update(users::table
+            .filter(users::id.eq(user_id)))
+            .set((
+                users::language.eq(lang),
+                users::updated_at.eq(now),
+            ))
+            .execute(&mut conn)
+            .await?;
+
+        Ok(())
+    }
 }
