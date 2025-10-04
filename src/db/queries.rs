@@ -6,7 +6,7 @@ use diesel::ExpressionMethods;
 use diesel_async::RunQueryDsl;
 
 use crate::enums::languages::Languages;
-use super::models::UserData;
+use super::models::{User, UserData};
 use super::pool::DbPool;
 use super::schema::users;
 
@@ -51,6 +51,25 @@ impl UserQueries {
             .filter(users::id.eq(user_id))
             .select(users::city)
             .first::<String>(&mut conn)
+            .await
+            .ok()
+    }
+
+    /// Returns the full user record by ID.
+    ///
+    /// # Arguments
+    /// - `pool` - the database connection pool
+    /// - `user_id` - ID of the user
+    ///
+    /// # Returns
+    /// - `Some(UserData)` if found
+    /// - `None` if user does not exist or query fails
+    pub async fn get_user(pool: &DbPool, user_id: i64) -> Option<User> {
+        let mut conn = pool.get().await.ok()?;
+
+        users::table
+            .filter(users::id.eq(user_id))
+            .first::<User>(&mut conn)
             .await
             .ok()
     }
