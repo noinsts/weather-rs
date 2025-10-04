@@ -6,45 +6,31 @@ use crate::db::queries::UserQueries;
 use crate::enums::languages::Languages;
 use crate::traits::chat::ChatSource;
 use crate::types::HandlerResult;
+use crate::utils::locales::get_text;
 
 async fn handler(bot: Bot, callback: CallbackQuery, pool: DbPool, lang: Languages) -> HandlerResult {
     let user_id = callback.user_id();
+    let callback_id = callback.id.clone();
 
-    let user = UserQueries::get_user(&pool, user_id).await;
-
-    match user {
+    let text = match UserQueries::get_user(&pool, user_id).await {
         Some(user) => {
             if Languages::from_str(&user.language.as_str()) == Some(lang) {
-                bot.answer_callback_query(callback.id)
-                    .text("Nooo")
-                    .show_alert(true)
-                    .await?;
+                get_text(lang, "language-no-change", None)
             }
             else {
-                let resp = UserQueries::set_lang(&pool, user_id, lang.as_str()).await;
-                match resp {
-                    Ok(_) => {
-                        bot.answer_callback_query(callback.id)
-                            .text("Success")
-                            .await?;
-                    }
-                    Err(e) => {
-                        eprintln!("Error while update language: {:?}", e);
-                        bot.answer_callback_query(callback.id)
-                            .text("Error")
-                            .show_alert(true)
-                            .await?;
-                    }
+                match UserQueries::set_lang(&pool, user_id, lang.as_str()).await {
+                    Ok(_) => get_text(lang, "language-success", None),
+                    Err(_) => get_text(lang, "error", None),
                 }
             }
         }
-        None => {
-            bot.answer_callback_query(callback.id)
-                .text("Error")
-                .show_alert(true)
-                .await?;
-        }
-    }
+        None => get_text(Languages::default(), "error", None),
+    };
+
+    bot.answer_callback_query(callback_id)
+        .text(text)
+        .show_alert(true)
+        .await?;
 
     Ok(())
 }
