@@ -11,6 +11,14 @@ impl Languages {
             Languages::Uk => "uk",
         }
     }
+
+    pub fn from_str(s: &str) -> Option<Self> {
+        match s {
+            "en" => Some(Languages::En),
+            "uk" => Some(Languages::Uk),
+            &_ => todo!(),
+        }
+    }
 }
 
 impl Default for Languages {
