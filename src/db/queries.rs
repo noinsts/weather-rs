@@ -14,47 +14,6 @@ use super::schema::users;
 pub struct UserQueries;
 
 impl UserQueries {
-    /// Checks whether a user with the given `user_id` exists in the `users` table.
-    ///
-    /// # Arguments
-    /// - `pool` - the database connection pool
-    /// - `user_id` - ID of the user
-    ///
-    /// # Returns
-    /// - `true` if the user exists, otherwise `false`.
-    pub async fn exists(pool: &DbPool, user_id: i64) -> bool {
-        let mut conn = match pool.get().await {
-            Ok(conn) => conn,
-            Err(_) => return false,
-        };
-
-        users::table
-            .filter(users::id.eq(user_id))
-            .select(users::id)
-            .first::<i64>(&mut conn)
-            .await
-            .is_ok()
-    }
-
-    /// Searching user`s city
-    ///
-    /// # Arguments
-    /// - `pool` - the database connection pool
-    /// - `user_id` - ID of the user
-    ///
-    /// # Returns
-    /// - `Some(city)` if found, or `None` if the user does not exist or the query fails.
-    pub async fn get_city(pool: &DbPool, user_id: i64) -> Option<String> {
-        let mut conn = pool.get().await.ok()?;
-
-        users::table
-            .filter(users::id.eq(user_id))
-            .select(users::city)
-            .first::<String>(&mut conn)
-            .await
-            .ok()
-    }
-
     /// Returns the full user record by ID.
     ///
     /// # Arguments
