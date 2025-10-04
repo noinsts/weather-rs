@@ -1,3 +1,5 @@
+use unic_langid::LanguageIdentifier;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Languages {
     En,
@@ -6,7 +8,7 @@ pub enum Languages {
 
 impl Languages {
     pub fn as_str(&self) -> &'static str {
-        match self { 
+        match self {
             Languages::En => "en",
             Languages::Uk => "uk",
         }
@@ -17,6 +19,20 @@ impl Languages {
             "en" => Some(Languages::En),
             "uk" => Some(Languages::Uk),
             &_ => todo!(),
+        }
+    }
+
+    pub fn lang_id(&self) -> LanguageIdentifier {
+        match self {
+            Languages::Uk => "uk".parse().unwrap(),
+            Languages::En => "en".parse().unwrap(),
+        }
+    }
+
+    pub fn path(&self) -> &'static str {
+        match self {
+            Languages::Uk => "locales/uk.ftl",
+            Languages::En => "locales/en.ftl",
         }
     }
 }
