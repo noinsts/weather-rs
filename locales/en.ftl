@@ -18,3 +18,8 @@ language-success = Language updated successfully!
 
 
 error = Something went wrong. Please try again.
+
+
+today = Today
+tomorrow = Tomorrow
+settings = Settings
