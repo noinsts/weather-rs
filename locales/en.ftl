@@ -35,3 +35,7 @@ weather =
     💨 <b>Wind</b>: { $wind_speed }
 
     <i>Have a great day!</i> ☀️
+
+back = ⬅️ Back
+
+select-language = Select language
