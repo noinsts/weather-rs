@@ -4,8 +4,10 @@ use teloxide::types::Message;
 
 use crate::db::pool::DbPool;
 use crate::db::queries::UserQueries;
+use crate::enums::languages::Languages;
 use crate::handlers::start;
 use crate::types::{HandlerResult, MyDialogue};
+use crate::utils::locales::get_text;
 
 /// Handler receiving the user's city.
 ///
@@ -25,22 +27,29 @@ pub async fn receive_city_handler(bot: Bot, dialogue: MyDialogue, msg: Message, 
         return Ok(());
     };
 
+    let user = UserQueries::get_user(&db, user_id).await;
+
+    let lang = user
+        .as_ref()
+        .and_then(|u| Languages::from_str(&u.language))
+        .unwrap_or_default();
+
     let city = match msg.text().filter(|c| !c.trim().is_empty()) {
         Some(city) => city,
         None => {
-            bot.send_message(msg.chat.id, "⚠️ Будь-ласка введіть валідне місто. Спробуйте знову.").await?;
+            bot.send_message(msg.chat.id, get_text(lang, "validation-city", None)).await?;
             return Ok(());
         }
     };
 
     match UserQueries::upsert_city(&db, user_id, &city).await {
         Ok(_) => {
-            bot.send_message(msg.chat.id, "✅ Місто збережено успішно!").await?;
+            bot.send_message(msg.chat.id, get_text(lang, "save-city-success", None)).await?;
             let _ = dialogue.exit().await?;
             start::message_handler(bot, msg, dialogue, db).await?;
         }
         Err(_) => {
-            bot.send_message(msg.chat.id, "❌ Помилка при збережені. Спробуйте ще раз.").await?;
+            bot.send_message(msg.chat.id, get_text(lang, "saving-error", None)).await?;
         }
     }
 
