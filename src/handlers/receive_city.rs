@@ -19,7 +19,7 @@ use crate::utils::locales::get_text;
 /// * `dialogue` - Dialogue state for the user.
 /// * `msg` - Incoming message containing the city.
 /// * `db` - Database connection wrapper.
-pub async fn receive_city_handler(bot: Bot, dialogue: MyDialogue, msg: Message, db: DbPool) -> HandlerResult {
+pub async fn handler(bot: Bot, dialogue: MyDialogue, msg: Message, db: DbPool) -> HandlerResult {
     let user_id = if let Some(user) = &msg.from {
         user.id.0 as i64
     }

@@ -25,7 +25,7 @@ pub fn schema() -> UpdateHandler<Box<dyn std::error::Error + Send + Sync + 'stat
         .branch(
             Update::filter_message()
                 .branch(commands)
-                .branch(case![State::ReceiveCity].endpoint(receive_city::receive_city_handler))
+                .branch(case![State::ReceiveCity].endpoint(receive_city::handler))
         );
 
     let callback_queries = Update::filter_callback_query()
