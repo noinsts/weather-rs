@@ -32,6 +32,16 @@ pub fn get_text(lang: Languages, key: &str, args: Option<&FluentArgs>) -> String
     bundle.format_pattern(pattern, args, &mut errors).to_string()
 }
 
+/// Creates a `FluentArgs` instance with multiple key-value pairs in a concise way.
+///
+/// # Example
+/// ```rust
+/// let args = fluent_args![
+///     "city" => "Kyiv",
+///     "temp" => 25,
+///      "humidity" => 60,
+/// ];
+/// ```
 #[macro_export]
 macro_rules! fluent_args {
     ( $( $k:expr => $v:expr ), *$(,)?) => {{
