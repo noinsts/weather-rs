@@ -144,7 +144,7 @@ async fn handle_weather_request(
         .as_ref()
         .ok_or(WeatherError::MissingMessage)?;
 
-    let weather_response = fetch_forecast(&user.city, &config.api_key)
+    let weather_response = fetch_forecast(&user.city, &config.api_key, Languages::from_str(&user.language.to_string()).unwrap())
         .await
         .map_err(|_| WeatherError::ApiFetchError)?;
 
