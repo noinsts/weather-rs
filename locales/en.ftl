@@ -39,3 +39,8 @@ weather =
 back = ⬅️ Back
 
 select-language = Select language
+
+settings-language-hub = 
+    🌐 <b>Language settings</b>
+
+    Choose the language you want the bot to use 👇
