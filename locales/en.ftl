@@ -16,9 +16,10 @@ start =
 language-no-change = The selected language is already active.
 language-success = Language updated successfully!
 
-
-error = Something went wrong. Please try again.
-
+save-city-success = ✅ The city has been successfully saved!
+validation-city = ⚠️ Please enter a valid city. Try again.
+saving-error = ❌ Error saving. Please try again.
+error = ❌ Something went wrong. Please try again.
 
 today = Today
 tomorrow = Tomorrow
