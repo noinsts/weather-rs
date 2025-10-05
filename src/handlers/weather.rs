@@ -1,5 +1,6 @@
 use std::env;
 use dotenvy::dotenv;
+use fluent_bundle::FluentArgs;
 use teloxide::prelude::*;
 use teloxide::Bot;
 use teloxide::types::ParseMode;
@@ -9,7 +10,10 @@ use crate::types::HandlerResult;
 use crate::api::{fetch_forecast, today_weather, tomorrow_weather};
 use crate::api::models::{WeatherResponse, Forecast};
 use crate::db::queries::UserQueries;
+use crate::enums::languages::Languages;
+use crate::fluent_args;
 use crate::utils::keyboard::get_to_hub;
+use crate::utils::locales::get_text;
 use crate::utils::string::capitalize_first_letter;
 
 /// Weather handler type, representing available forecast options.
@@ -147,7 +151,7 @@ async fn handle_weather_request(
     let forecast = period.selector()(&weather_response)
         .ok_or(WeatherError::NoForecastData)?;
 
-    let formatted_message = format_weather_message(&user.city, period, &forecast);
+    let formatted_message = format_weather_message(&user.city, period, &forecast, Languages::from_str(&user.language.to_string()).unwrap());
 
     bot.edit_message_text(message.chat().id, message.id(), formatted_message)
         .reply_markup(get_to_hub())
@@ -159,7 +163,7 @@ async fn handle_weather_request(
 }
 
 /// Formats weather information into a user-friendly message
-fn format_weather_message(city: &str, period: WeatherPeriod, response: &Forecast) -> String {
+fn format_weather_message(city: &str, period: WeatherPeriod, response: &Forecast, lang: Languages) -> String {
     let description = &response.weather[0].description;
     let emoji = weather_to_emoji(description);
     let wind_speed = if response.wind.speed as i32 == 0 {
@@ -169,22 +173,18 @@ fn format_weather_message(city: &str, period: WeatherPeriod, response: &Forecast
         format!("{} км/год", response.wind.speed as i32)
     };
 
-    format!(
-        "🌤️ <b>Погода в {city} на {day}</b>\n\n\
-        {emoji} {description}\n\n\
-        🌡️ <b>Температура</b>: {temp}°C (відчувається як {feels_like}°C)\n\
-        💧 <b>Вологість</b>: {humidity}%\n\
-        💨 <b>Вітер</b>: {wind_speed}\n\n\
-        <i>Гарного дня!</i> ☀️",
-        city=city,
-        day=period.label().to_lowercase(),
-        temp=response.main.temp as i32,
-        feels_like=response.main.feels_like as i32,
-        humidity=response.main.humidity,
-        wind_speed=wind_speed,
-        emoji=emoji,
-        description=capitalize_first_letter(description),
-    )
+    let args = fluent_args![
+        "city" => city,
+        "day" => period.label().to_lowercase(),
+        "emoji" => emoji,
+        "description" => capitalize_first_letter(description),
+        "temp" => response.main.temp as i32,
+        "feels_like" => response.main.feels_like as i32,
+        "humidity" => response.main.humidity,
+        "wind_speed" => wind_speed,
+    ];
+
+    get_text(lang, "weather", Some(&args))
 }
 
 /// Returns weather emoji
