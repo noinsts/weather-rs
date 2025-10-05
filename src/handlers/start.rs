@@ -49,12 +49,14 @@ where
                 .unwrap_or(Languages::default());
             let text = get_text(lang, "hub-message", Some(&args));
 
-            let keyboard = get_hub_keyboard();
+            let keyboard = get_hub_keyboard(
+                Languages::from_str(&user.language.to_string()).unwrap()
+            );
             send_or_edit(&bot, &source, chat_id, &text, Some(keyboard)).await?;
         }
         None => {
             let text = get_text(Languages::default(), "start", None);
-            send_or_edit(&bot, &source, chat_id, &text.to_string(), None).await?;
+            send_or_edit(&bot, &source, chat_id, &text, None).await?;
             dialogue.update(State::ReceiveCity).await?;
         }
     }
