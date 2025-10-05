@@ -140,21 +140,23 @@ async fn handle_weather_request(
         .await
         .ok_or(WeatherError::CityNotFound)?;
 
+    let lang = Languages::from_str(&user.language).unwrap_or_default();
+
     let message = callback.message
         .as_ref()
         .ok_or(WeatherError::MissingMessage)?;
 
-    let weather_response = fetch_forecast(&user.city, &config.api_key, Languages::from_str(&user.language.to_string()).unwrap())
+    let weather_response = fetch_forecast(&user.city, &config.api_key, lang)
         .await
         .map_err(|_| WeatherError::ApiFetchError)?;
 
     let forecast = period.selector()(&weather_response)
         .ok_or(WeatherError::NoForecastData)?;
 
-    let formatted_message = format_weather_message(&user.city, period, &forecast, Languages::from_str(&user.language.to_string()).unwrap());
+    let formatted_message = format_weather_message(&user.city, period, &forecast, lang);
 
     bot.edit_message_text(message.chat().id, message.id(), formatted_message)
-        .reply_markup(get_to_hub())
+        .reply_markup(get_to_hub(lang))
         .parse_mode(ParseMode::Html)
         .await
         .map_err(|_| WeatherError::ApiFetchError)?;
