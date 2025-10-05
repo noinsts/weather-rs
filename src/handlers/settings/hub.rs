@@ -1,4 +1,5 @@
 use teloxide::prelude::*;
+use teloxide::types::ParseMode;
 
 use crate::db::pool::DbPool;
 use crate::db::queries::UserQueries;
@@ -6,6 +7,7 @@ use crate::enums::languages::Languages;
 use crate::traits::chat::ChatSource;
 use crate::types::HandlerResult;
 use crate::utils::keyboard::get_settings_hub;
+use crate::utils::locales::get_text;
 
 pub async fn handler(bot: Bot, callback: CallbackQuery, db: DbPool) -> HandlerResult {
     let user = UserQueries::get_user(&db, callback.user_id()).await;
@@ -19,7 +21,8 @@ pub async fn handler(bot: Bot, callback: CallbackQuery, db: DbPool) -> HandlerRe
             .and_then(|u| Languages::from_str(&u.language))
             .unwrap_or_default();
 
-        bot.edit_message_text(chat_id, message_id, "Hello")
+        bot.edit_message_text(chat_id, message_id, get_text(lang, "settings-hub", None))
+            .parse_mode(ParseMode::Html)
             .reply_markup(get_settings_hub(lang))
             .await?;
     }

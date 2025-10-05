@@ -40,6 +40,13 @@ back = ⬅️ Back
 
 select-language = Select language
 
+
+settings-hub = 
+    ⚙️ <b>Settings</b>
+
+    Here you can change the language and other bot preferences 👇
+
+
 settings-language-hub = 
     🌐 <b>Language settings</b>
 
