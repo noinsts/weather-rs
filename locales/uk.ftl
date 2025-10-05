@@ -22,3 +22,14 @@ error = Щось пішло не так. Спробуйте ще раз.
 today = Сьогодні
 tomorrow = Завтра
 settings = Налаштування
+
+weather =
+    🌤️ <b>Погода в { $city } на { $day }</b>
+
+    { $emoji } { $description }
+
+    🌡️ <b>Температура</b>: { $temp }°C (відчувається як { $feels_like }°C)
+    💧 <b>Вологість</b>: { $humidity }%
+    💨 <b>Вітер</b>: { $wind_speed }
+
+    <i>Гарного дня!</i> ☀️
