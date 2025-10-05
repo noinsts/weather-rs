@@ -18,22 +18,29 @@ use crate::types::{HandlerResult, MyDialogue};
 /// * `msg` - Incoming message containing the city.
 /// * `db` - Database connection wrapper.
 pub async fn receive_city_handler(bot: Bot, dialogue: MyDialogue, msg: Message, db: DbPool) -> HandlerResult {
-    let user_id = match msg.from {
-        Some(ref user) => user.id.0 as i64,
+    let user_id = if let Some(user) = &msg.from {
+        user.id.0 as i64
+    }
+    else {
+        return Ok(());
+    };
+
+    let city = match msg.text().filter(|c| !c.trim().is_empty()) {
+        Some(city) => city,
         None => {
+            bot.send_message(msg.chat.id, "⚠️ Будь-ласка введіть валідне місто. Спробуйте знову.").await?;
             return Ok(());
         }
     };
 
-    match msg.text() {
-        Some(city) if !city.trim().is_empty() => {
-            UserQueries::upsert_city(&db, user_id, &city.to_string()).await?;
+    match UserQueries::upsert_city(&db, user_id, &city).await {
+        Ok(_) => {
             bot.send_message(msg.chat.id, "✅ Місто збережено успішно!").await?;
             let _ = dialogue.exit().await?;
             start::message_handler(bot, msg, dialogue, db).await?;
         }
-        _ => {
-            bot.send_message(msg.chat.id, "Будь-ласка введіть валідне місто. Спробуйте знову.").await?;
+        Err(_) => {
+            bot.send_message(msg.chat.id, "❌ Помилка при збережені. Спробуйте ще раз.").await?;
         }
     }
 
