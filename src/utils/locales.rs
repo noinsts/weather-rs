@@ -31,3 +31,12 @@ pub fn get_text(lang: Languages, key: &str, args: Option<&FluentArgs>) -> String
     let mut errors = vec![];
     bundle.format_pattern(pattern, args, &mut errors).to_string()
 }
+
+#[macro_export]
+macro_rules! fluent_args {
+    ( $( $k:expr => $v:expr ), *$(,)?) => {{
+        let mut args = FluentArgs::new();
+        $( args.set($k, $v); )*
+        args
+    }};
+}
