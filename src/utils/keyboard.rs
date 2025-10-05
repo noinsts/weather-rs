@@ -1,13 +1,21 @@
 use teloxide::types::{InlineKeyboardButton, InlineKeyboardMarkup};
 
 use crate::enums::Callbacks;
+use crate::enums::languages::Languages;
+use crate::utils::locales::get_text;
 
 /// Returns the main hub keyboard with options for today's and tomorrow's weather.
-pub fn get_hub_keyboard() -> InlineKeyboardMarkup {
+///
+/// # Arguments
+/// - `lang` - мова кнопок клавіатури
+///
+/// # Returns
+/// - `InlineKeyboardMarkup` - inline keyboard
+pub fn get_hub_keyboard(lang: Languages) -> InlineKeyboardMarkup {
     InlineKeyboardMarkup::new(vec![
-        vec![InlineKeyboardButton::callback("Today", Callbacks::Today.as_str())],
-        vec![InlineKeyboardButton::callback("Tomorrow", Callbacks::Tomorrow.as_str())],
-        vec![InlineKeyboardButton::callback("Settings", Callbacks::SettingsHub.as_str())],
+        vec![InlineKeyboardButton::callback(get_text(lang, "today", None), Callbacks::Today.as_str())],
+        vec![InlineKeyboardButton::callback(get_text(lang, "tomorrow", None), Callbacks::Tomorrow.as_str())],
+        vec![InlineKeyboardButton::callback(get_text(lang, "settings", None), Callbacks::SettingsHub.as_str())],
     ])
 }
 
