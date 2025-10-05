@@ -3,6 +3,16 @@ use fluent_bundle::{FluentArgs, FluentBundle, FluentResource};
 
 use crate::enums::languages::Languages;
 
+/// Retrieves a localizes message string for a given language and key.
+///
+/// # Arguments
+///
+/// - `lang` - The target `Languages` enum value specifying the language.
+/// - `key` - The key of the message to retrieve from the FTL file.
+/// - `args` - Optional `FluentArgs` for dynamic placeholders in the message.
+///
+/// # Returns
+/// A formatted `String` containing the localizes message.
 pub fn get_text(lang: Languages, key: &str, args: Option<&FluentArgs>) -> String {
     let content = fs::read_to_string(lang.path())
         .unwrap_or_else(|_| panic!("{} not found", lang.path()));
