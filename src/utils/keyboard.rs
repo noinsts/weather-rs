@@ -36,9 +36,19 @@ pub fn get_settings_hub(lang: Languages) -> InlineKeyboardMarkup {
 
 /// Returns keyboard with languages
 pub fn get_languages_keyboard(lang: Languages) -> InlineKeyboardMarkup {
+    let language_buttons = Languages::all()
+        .iter()
+        .map(|l| {
+            InlineKeyboardButton::callback(l.label(), l.callback().as_str())
+        })
+        .collect();
+
+    let back_button = vec![
+        InlineKeyboardButton::callback(get_text(lang, "back", None), Callbacks::Start.as_str())
+    ];
+
     InlineKeyboardMarkup::new(vec![
-        vec![InlineKeyboardButton::callback("🇺🇸 | English", Callbacks::English.as_str()),
-             InlineKeyboardButton::callback("🇺🇦 | Українська", Callbacks::Ukrainian.as_str())],
-        vec![InlineKeyboardButton::callback(get_text(lang, "back", None), Callbacks::SettingsHub.as_str())],
+        language_buttons,
+        back_button
     ])
 }
