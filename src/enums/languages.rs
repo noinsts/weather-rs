@@ -1,5 +1,7 @@
 use unic_langid::LanguageIdentifier;
 
+use crate::enums::Callbacks;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Languages {
     En,
@@ -34,6 +36,24 @@ impl Languages {
             Languages::Uk => "locales/uk.ftl",
             Languages::En => "locales/en.ftl",
         }
+    }
+
+    pub fn label(&self) -> &'static str {
+        match self {
+            Languages::Uk => "🇺🇦 | Українська",
+            Languages::En => "🇺🇸 | English",
+        }
+    }
+
+    pub fn callback(&self) -> Callbacks {
+        match self {
+            Languages::Uk => Callbacks::Ukrainian,
+            Languages::En => Callbacks::English,
+        }
+    }
+    
+    pub fn all() -> &'static [Languages] {
+        &[Languages::Uk, Languages::En]
     }
 }
 
