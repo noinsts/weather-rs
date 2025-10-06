@@ -6,6 +6,7 @@ use crate::enums::Callbacks;
 pub enum Languages {
     En,
     Uk,
+    De,
 }
 
 impl Languages {
@@ -13,6 +14,7 @@ impl Languages {
         match self {
             Languages::En => "en",
             Languages::Uk => "uk",
+            Languages::De => "de",
         }
     }
 
@@ -20,6 +22,7 @@ impl Languages {
         match s {
             "en" => Some(Languages::En),
             "uk" => Some(Languages::Uk),
+            "de" => Some(Languages::De),
             &_ => todo!(),
         }
     }
@@ -28,6 +31,7 @@ impl Languages {
         match self {
             Languages::Uk => "uk".parse().unwrap(),
             Languages::En => "en".parse().unwrap(),
+            Languages::De => "de".parse().unwrap(),
         }
     }
 
@@ -35,6 +39,7 @@ impl Languages {
         match self {
             Languages::Uk => "locales/uk.ftl",
             Languages::En => "locales/en.ftl",
+            Languages::De => "locales/de.ftl",
         }
     }
 
@@ -42,6 +47,7 @@ impl Languages {
         match self {
             Languages::Uk => "🇺🇦 | Українська",
             Languages::En => "🇺🇸 | English",
+            Languages::De => "🇩🇪 | Deutsch"
         }
     }
 
@@ -49,11 +55,13 @@ impl Languages {
         match self {
             Languages::Uk => Callbacks::Ukrainian,
             Languages::En => Callbacks::English,
+            Languages::De => Callbacks::Deutsch,
+
         }
     }
     
     pub fn all() -> &'static [Languages] {
-        &[Languages::Uk, Languages::En]
+        &[Languages::Uk, Languages::En, Languages::De]
     }
 }
 
