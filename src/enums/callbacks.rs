@@ -10,6 +10,7 @@ pub enum Callbacks {
     // Languages
     English,
     Ukrainian,
+    Deutsch,
 }
 
 impl Callbacks {
@@ -22,6 +23,7 @@ impl Callbacks {
             Callbacks::SelectLanguage => "select-language",
             Callbacks::English => "english",
             Callbacks::Ukrainian => "ukrainian",
+            Callbacks::Deutsch => "deutsch"
         }
     }
 }
