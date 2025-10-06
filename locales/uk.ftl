@@ -36,6 +36,12 @@ weather =
 
     <i>Гарного дня!</i> ☀️
 
+
+weather-wind-speed-kmh = км/год
+
+weather-wind-speed-unknown = відсутній
+
+
 back = ⬅️ Назад
 
 select-language = Обрати мову

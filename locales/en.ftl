@@ -36,6 +36,12 @@ weather =
 
     <i>Have a great day!</i> ☀️
 
+
+weather-wind-speed-kmh = km/h
+
+weather-wind-speed-unknown = unavailable
+
+
 back = ⬅️ Back
 
 select-language = Select language

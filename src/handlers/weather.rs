@@ -169,10 +169,10 @@ fn format_weather_message(city: &str, period: WeatherPeriod, response: &Forecast
     let description = &response.weather[0].description;
     let emoji = weather_to_emoji(description);
     let wind_speed = if response.wind.speed as i32 == 0 {
-        "відсутній".to_string()
+        get_text(lang, "weather-wind-speed-unknown", None)
     }
     else {
-        format!("{} км/год", response.wind.speed as i32)
+        format!("{} {}", response.wind.speed as i32, get_text(lang, "weather-wind-speed-kmh", None))
     };
 
     let args = fluent_args![
