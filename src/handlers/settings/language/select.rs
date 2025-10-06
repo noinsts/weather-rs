@@ -3,6 +3,7 @@ use teloxide::types::CallbackQuery;
 
 use crate::db::pool::DbPool;
 use crate::db::queries::UserQueries;
+use crate::enums::Callbacks;
 use crate::enums::languages::Languages;
 use crate::traits::chat::ChatSource;
 use crate::types::HandlerResult;
@@ -54,4 +55,9 @@ pub async fn ukrainian_handler(bot: Bot, callback: CallbackQuery, db: DbPool) ->
 /// Sets the user's language to English.
 pub async fn english_handler(bot: Bot, callback: CallbackQuery, db: DbPool) -> HandlerResult {
     handler(bot, callback, db, Languages::En).await
+}
+
+/// Sets the user's language to Deutsch.
+pub async fn deutsch_handler(bot: Bot, callback: CallbackQuery, db: DbPool) -> HandlerResult {
+    handler(bot, callback, db, Languages::De).await
 }
