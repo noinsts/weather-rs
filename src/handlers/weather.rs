@@ -12,6 +12,7 @@ use crate::api::models::{WeatherResponse, Forecast};
 use crate::db::queries::UserQueries;
 use crate::enums::languages::Languages;
 use crate::fluent_args;
+use crate::traits::chat::ChatSource;
 use crate::utils::keyboard::get_to_hub;
 use crate::utils::locales::get_text;
 use crate::utils::string::capitalize_first_letter;
@@ -34,6 +35,8 @@ impl WeatherPeriod {
         }
     }
 
+    // TODO: додати локалізацію для лейблів
+
     /// Returns a selector function that extracts the right forecast
     const fn selector(&self) -> fn(&WeatherResponse) -> Option<&Forecast> {
         match self {
@@ -49,8 +52,8 @@ enum WeatherError {
     /// API key not found in environment
     MissingApiKey,
 
-    /// User's city not found in database
-    CityNotFound,
+    /// User not found in database
+    UserNotFound,
 
     /// Failed to fetch weather data
     ApiFetchError,
@@ -64,13 +67,13 @@ enum WeatherError {
 
 impl WeatherError {
     /// Returns user-friendly error message
-    const fn user_message(&self) -> &'static str {
+    fn user_message(&self, lang: Languages) -> String {
         match self {
-            WeatherError::MissingApiKey => "Помилка сервісу, зверніться до розробників",
-            WeatherError::CityNotFound => "Ваше місто не знайдено. Спробуйте встановити його знову.",
-            WeatherError::ApiFetchError => "Не вдалося отримати дані про погоду. Спробуйте пізніше",
-            WeatherError::NoForecastData => "Прогноз погоди недоступний для обраного періоду",
-            WeatherError::MissingMessage => "Помилка обробки запиту.",
+            WeatherError::MissingApiKey => get_text(lang, "service-error", None),
+            WeatherError::UserNotFound => get_text(lang, "user-not-found", None),
+            WeatherError::ApiFetchError => get_text(lang, "api-fetch-error", None),
+            WeatherError::NoForecastData => get_text(lang, "no-forecast-data", None),
+            WeatherError::MissingMessage => get_text(lang, "missing-message", None),
         }
     }
 }
@@ -111,13 +114,26 @@ async fn weather_handler(
 ) -> HandlerResult {
     let callback_id = callback.id.clone();
 
-    match handle_weather_request(&bot, &callback, period, db).await {
+    let user = match UserQueries::get_user(db, callback.user_id()).await {
+        Some(user) => user,
+        None => {
+            bot.answer_callback_query(callback_id)
+                .text(WeatherError::UserNotFound.user_message(Languages::default()))
+                .show_alert(true)
+                .await?;
+            return Ok(());
+        }
+    };
+
+    let lang = Languages::from_str(&user.language).unwrap_or_default();
+
+    match handle_weather_request(&bot, &callback, period, user.city, lang).await {
         Ok(_) => {
             bot.answer_callback_query(callback_id).await?;
         }
         Err(e) => {
             bot.answer_callback_query(callback_id)
-                .text(e.user_message())
+                .text(e.user_message(lang))
                 .show_alert(true)
                 .await?;
         }
@@ -131,29 +147,23 @@ async fn handle_weather_request(
     bot: &Bot,
     callback: &CallbackQuery,
     period: WeatherPeriod,
-    db: &DbPool,
+    city: String,
+    lang: Languages,
 ) -> Result<(), WeatherError> {
     let config = WeatherConfig::from_env()?;
-    let user_id = callback.from.id.0 as i64;
-
-    let user = UserQueries::get_user(db, user_id)
-        .await
-        .ok_or(WeatherError::CityNotFound)?;
-
-    let lang = Languages::from_str(&user.language).unwrap_or_default();
 
     let message = callback.message
         .as_ref()
         .ok_or(WeatherError::MissingMessage)?;
 
-    let weather_response = fetch_forecast(&user.city, &config.api_key, lang)
+    let weather_response = fetch_forecast(&city, &config.api_key, lang)
         .await
         .map_err(|_| WeatherError::ApiFetchError)?;
 
     let forecast = period.selector()(&weather_response)
         .ok_or(WeatherError::NoForecastData)?;
 
-    let formatted_message = format_weather_message(&user.city, period, &forecast, lang);
+    let formatted_message = format_weather_message(&city, period, &forecast, lang);
 
     bot.edit_message_text(message.chat().id, message.id(), formatted_message)
         .reply_markup(get_to_hub(lang))
