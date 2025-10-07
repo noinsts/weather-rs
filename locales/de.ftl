@@ -41,6 +41,11 @@ weather-wind-speed-kmh = km/h
 
 weather-wind-speed-unknown = nicht verfügbar
 
+service-error = Fehler des Dienstes, wenden Sie sich bitte an die Entwickler
+user-not-found = Sie wurden nicht gefunden. Versuchen Sie, den Bot mit dem Befehl /start neu zu starten.
+api-fetch-error = Es konnten keine Wetterdaten abgerufen werden. Versuchen Sie es später erneut.
+no-forecast-data = Die Wettervorhersage für den ausgewählten Zeitraum ist nicht verfügbar.
+missing-message = Fehler bei der Bearbeitung der Anfrage.
 
 back = ⬅️ Zurück
 
