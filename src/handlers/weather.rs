@@ -28,14 +28,12 @@ enum WeatherPeriod {
 
 impl WeatherPeriod {
     /// Returns localized label for the forecast option.
-    const fn label(&self) -> &'static str {
+    fn label(&self, lang: Languages) -> String {
         match self {
-            WeatherPeriod::Today => "Сьогодні",
-            WeatherPeriod::Tomorrow => "Завтра"
+            WeatherPeriod::Today => get_text(lang, "today", None),
+            WeatherPeriod::Tomorrow => get_text(lang, "tomorrow", None),
         }
     }
-
-    // TODO: додати локалізацію для лейблів
 
     /// Returns a selector function that extracts the right forecast
     const fn selector(&self) -> fn(&WeatherResponse) -> Option<&Forecast> {
@@ -187,7 +185,7 @@ fn format_weather_message(city: &str, period: WeatherPeriod, response: &Forecast
 
     let args = fluent_args![
         "city" => city,
-        "day" => period.label().to_lowercase(),
+        "day" => period.label(lang).to_lowercase(),
         "emoji" => emoji,
         "description" => capitalize_first_letter(description),
         "temp" => response.main.temp as i32,
