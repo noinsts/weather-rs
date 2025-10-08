@@ -51,6 +51,7 @@ missing-message = Помилка обробки запиту.
 back = ⬅️ Назад
 
 select-language = Обрати мову
+select-units = Одиниці вимірювання
 
 
 settings-hub = 

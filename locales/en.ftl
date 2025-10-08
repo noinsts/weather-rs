@@ -50,6 +50,7 @@ missing-message = Error processing request.
 back = ⬅️ Back
 
 select-language = Select language
+select-units = Units settings
 
 
 settings-hub = 

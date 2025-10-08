@@ -50,6 +50,7 @@ missing-message = Fehler bei der Bearbeitung der Anfrage.
 back = ⬅️ Zurück
 
 select-language = Sprache auswählen
+select-units = Einheitseinstellungen
 
 
 settings-hub = 
