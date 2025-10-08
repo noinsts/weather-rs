@@ -53,3 +53,12 @@ pub fn get_languages_keyboard(lang: Languages) -> InlineKeyboardMarkup {
         back_button
     ])
 }
+
+/// Returns keyboard for units settings hub
+pub fn get_units_keyboard(lang: Languages) -> InlineKeyboardMarkup {
+    InlineKeyboardMarkup::new(vec![
+        vec![InlineKeyboardButton::callback(get_text(lang, "temperature-button", None), Callbacks::Temperature.as_str())],
+        vec![InlineKeyboardButton::callback(get_text(lang, "wind-button", None), Callbacks::Speed.as_str())],
+        vec![InlineKeyboardButton::callback(get_text(lang, "back", None), Callbacks::SettingsHub.as_str())],
+    ])
+}
