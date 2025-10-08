@@ -12,6 +12,10 @@ pub enum Callbacks {
     English,
     Ukrainian,
     Deutsch,
+
+    // Units
+    Temperature,
+    Speed,
 }
 
 impl Callbacks {
@@ -25,7 +29,9 @@ impl Callbacks {
             Callbacks::SelectUnits => "select-units",
             Callbacks::English => "english",
             Callbacks::Ukrainian => "ukrainian",
-            Callbacks::Deutsch => "deutsch"
+            Callbacks::Deutsch => "deutsch",
+            Callbacks::Temperature => "temperature",
+            Callbacks::Speed => "speed",
         }
     }
 }
