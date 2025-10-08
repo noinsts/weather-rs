@@ -30,6 +30,7 @@ pub fn get_to_hub(lang: Languages) -> InlineKeyboardMarkup {
 pub fn get_settings_hub(lang: Languages) -> InlineKeyboardMarkup {
     InlineKeyboardMarkup::new(vec![
         vec![InlineKeyboardButton::callback(get_text(lang, "select-language", None), Callbacks::SelectLanguage.as_str())],
+        vec![InlineKeyboardButton::callback(get_text(lang, "select-units", None), Callbacks::SelectUnits.as_str())],
         vec![InlineKeyboardButton::callback(get_text(lang, "back", None), Callbacks::Start.as_str())],
     ])
 }
