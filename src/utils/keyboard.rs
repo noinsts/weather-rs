@@ -45,7 +45,7 @@ pub fn get_languages_keyboard(lang: Languages) -> InlineKeyboardMarkup {
         .collect();
 
     let back_button = vec![
-        InlineKeyboardButton::callback(get_text(lang, "back", None), Callbacks::Start.as_str())
+        InlineKeyboardButton::callback(get_text(lang, "back", None), Callbacks::SettingsHub.as_str())
     ];
 
     InlineKeyboardMarkup::new(vec![
