@@ -200,12 +200,43 @@ fn format_weather_message(city: &str, period: WeatherPeriod, response: &Forecast
 /// Returns weather emoji
 fn weather_to_emoji(description: &str) -> &'static str {
     match description.to_lowercase().as_str() {
-        desc if desc.contains("дощ") || desc.contains("rain") => "🌧️",
-        desc if desc.contains("сніг") || desc.contains("snow") => "❄️",
-        desc if desc.contains("хмар") || desc.contains("похмуро") || desc.contains("cloud") || desc.contains("cloudy") => "☁️",
-        desc if desc.contains("ясно") || desc.contains("сонячно") || desc.contains("sun") || desc.contains("sunny") => "☀️",
-        desc if desc.contains("туман") || desc.contains("fog") || desc.contains("mist") => "🌫️",
-        desc if desc.contains("гроза") || desc.contains("thunder") || desc.contains("storm") => "⛈️",
+        // дощ / rain / Regen
+        desc if desc.contains("дощ")
+            || desc.contains("rain")
+            || desc.contains("regen") => "🌧️",
+
+        // сніг / snow / Schnee
+        desc if desc.contains("сніг")
+            || desc.contains("snow")
+            || desc.contains("schnee") => "❄️",
+
+        // хмари / cloudy / wolken
+        desc if desc.contains("хмар")
+            || desc.contains("похмуро")
+            || desc.contains("cloud")
+            || desc.contains("cloudy")
+            || desc.contains("wolken")
+            || desc.contains("bewölkt") => "☁️",
+
+        // ясно / сонячно / sunny / klar
+        desc if desc.contains("ясно")
+            || desc.contains("сонячно")
+            || desc.contains("sun")
+            || desc.contains("sunny")
+            || desc.contains("klar") => "☀️",
+
+        // туман / fog / nebel
+        desc if desc.contains("туман")
+            || desc.contains("fog")
+            || desc.contains("mist")
+            || desc.contains("nebel") => "🌫️",
+
+        // гроза / thunderstorm / gewitter
+        desc if desc.contains("гроза")
+            || desc.contains("thunder")
+            || desc.contains("storm")
+            || desc.contains("gewitter") => "⛈️",
+
         _ => "🌤️", // Default
     }
 }
