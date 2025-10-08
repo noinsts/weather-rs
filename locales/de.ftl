@@ -63,3 +63,9 @@ settings-language-hub =
     🌐 <b>Spracheinstellungen</b>
 
     Wähle die Sprache, die der Bot verwenden soll 👇
+
+
+settings-units-hub = 
+    📏 <b>Einheitseinstellungen</b>
+
+    Wähle die Einheiten, die der Bot verwenden soll 👇

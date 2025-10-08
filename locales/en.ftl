@@ -63,3 +63,8 @@ settings-language-hub =
     🌐 <b>Language settings</b>
 
     Choose the language you want the bot to use 👇
+
+settings-units-hub = 
+    📏 <b>Units settings</b>
+
+    Choose the units you want the bot to use 👇
