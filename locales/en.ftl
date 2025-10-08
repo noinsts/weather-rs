@@ -68,3 +68,7 @@ settings-units-hub =
     📏 <b>Units settings</b>
 
     Choose the units you want the bot to use 👇
+
+
+temperature-button = 🌡️ Temperature unit
+wind-button = 💨 Wind speed unit
