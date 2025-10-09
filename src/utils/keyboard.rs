@@ -62,3 +62,15 @@ pub fn get_units_keyboard(lang: Languages) -> InlineKeyboardMarkup {
         vec![InlineKeyboardButton::callback(get_text(lang, "back", None), Callbacks::SettingsHub.as_str())],
     ])
 }
+
+/// Returns keyboard for units/temperature settings hub
+pub fn get_temperature_keyboard(lang: Languages) -> InlineKeyboardMarkup {
+    InlineKeyboardMarkup::new(vec![
+        vec![
+            InlineKeyboardButton::callback("°C", Callbacks::Celsius.as_str()),
+            InlineKeyboardButton::callback("°F", Callbacks::Fahrenheit.as_str()),
+            InlineKeyboardButton::callback("K", Callbacks::Kelvin.as_str())
+        ],
+        vec![InlineKeyboardButton::callback(get_text(lang, "back", None), Callbacks::SelectUnits.as_str())],
+    ])
+}
