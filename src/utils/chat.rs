@@ -1,8 +1,12 @@
 use teloxide::prelude::*;
 use teloxide::types::{InlineKeyboardMarkup, MessageId, ParseMode};
 
+use crate::db::pool::DbPool;
+use crate::db::queries::UserQueries;
+use crate::enums::languages::Languages;
 use crate::traits::chat::ChatSource;
 use crate::types::HandlerResult;
+use crate::utils::locales::get_text;
 
 /// Sends or edits a message depending on the update source.
 ///
@@ -58,5 +62,34 @@ where
         req.await?;
     }
 
+    Ok(())
+}
+
+pub async fn hub_handler<F>(
+    bot: &Bot,
+    callback: &CallbackQuery,
+    db: &DbPool,
+    locale_key: &str,
+    keyboard_fn: F,
+) -> HandlerResult
+where
+    F: Fn(Languages) -> InlineKeyboardMarkup,
+{
+    let user = UserQueries::get_user(&db, callback.user_id()).await;
+
+    if let Some(message) = &callback.message {
+        let chat_id = message.chat().id;
+        let message_id = message.id();
+
+        let lang = user
+            .as_ref()
+            .and_then(|u| Languages::from_str(&u.language))
+            .unwrap_or_default();
+
+        bot.edit_message_text(chat_id, message_id, get_text(lang, locale_key, None))
+            .parse_mode(ParseMode::Html)
+            .reply_markup(keyboard_fn(lang))
+            .await?;
+    }
     Ok(())
 }
