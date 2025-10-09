@@ -72,3 +72,8 @@ settings-units-hub =
 
 temperature-button = 🌡️ Temperature unit
 wind-button = 💨 Wind speed unit
+
+settings-units-temp-hub = 
+    🌡️ <b>Temperature Units</b>
+
+    Choose the units to display temperature 👇

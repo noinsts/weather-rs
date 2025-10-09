@@ -73,3 +73,8 @@ settings-units-hub =
 
 temperature-button = 🌡️ Одиниці температури
 wind-button = 💨 Одиниці швидкості вітру
+
+settings-units-temp-hub = 
+    🌡️ <b>Одиниці температури</b>
+
+    Вибери, у яких одиницях показувати температуру 👇
