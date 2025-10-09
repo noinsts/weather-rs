@@ -16,6 +16,11 @@ pub enum Callbacks {
     // Units
     Temperature,
     Speed,
+
+    // Temperature
+    Celsius,
+    Fahrenheit,
+    Kelvin,
 }
 
 impl Callbacks {
@@ -32,6 +37,9 @@ impl Callbacks {
             Callbacks::Deutsch => "deutsch",
             Callbacks::Temperature => "temperature",
             Callbacks::Speed => "speed",
+            Callbacks::Celsius => "celsius",
+            Callbacks::Fahrenheit => "fahrenheit",
+            Callbacks::Kelvin => "kelvin",
         }
     }
 }
