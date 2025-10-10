@@ -65,6 +65,39 @@ where
     Ok(())
 }
 
+/// Handles editing message in response to a callback query for a "hub"-type menu.
+///
+/// This function is a generic helper for similar handlers that:
+/// - Retrieve the user's language from the database,
+/// - Get the corresponding localized text,
+/// - And update the original message with new content and an inline keyboard.
+///
+/// # Arguments
+/// - `bot` - Reference to the `Bot` instance used for editing message.
+/// - `callback` - The `CallbackQuery` that triggered this handler.
+/// - `db` - Reference to the database connection pool.
+/// - `locale_key` - The localization key used to fetch the translated text for message.
+/// - `keyboard_fn` - A function that returns an `InlineKeyboardMarkup` based on the user's language.
+///
+/// # Type parameters
+///
+/// - `F` - A function that takes a [`Languages`] value and returns an [`InlineKeyboardMarkup`].
+///
+/// # Returns
+///
+/// Returns a [`HandlerResult`] indicating success or failure of the handler execution.
+///
+/// # Example
+///
+/// ```rust
+/// hub_handler(
+///     &bot,
+///     &callback,
+///     &db,
+///     "settings-units-temp-hub",
+///     get_temperature_keyboard,
+/// ).await?;
+/// ```
 pub async fn hub_handler<F>(
     bot: &Bot,
     callback: &CallbackQuery,
