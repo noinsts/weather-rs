@@ -102,4 +102,20 @@ impl UserQueries {
 
         Ok(())
     }
+    
+    pub async fn set_temp_unit(pool: &DbPool, user_id: i64, temp: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
+        let mut conn = pool.get().await?;
+        let now = Utc::now().naive_utc();
+        
+        diesel::update(users::table)
+            .filter(users::id.eq(user_id))
+            .set((
+                users::temperature_unit.eq(temp),
+                users::updated_at.eq(now),
+            ))
+            .execute(&mut conn)
+            .await?;
+        
+        Ok(())
+    }
 }
