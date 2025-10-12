@@ -13,6 +13,15 @@ impl TemperatureUnits {
             TemperatureUnits::Kelvin => "K",
         }
     }
+
+    pub fn from_str(unit: &str) -> Option<Self> {
+        match unit {
+            "C" => Some(TemperatureUnits::Celsius),
+            "F" => Some(TemperatureUnits::Fahrenheit),
+            "K" => Some(TemperatureUnits::Kelvin),
+            &_ => None
+        }
+    }
 }
 
 impl Default for TemperatureUnits {
