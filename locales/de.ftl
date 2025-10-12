@@ -78,3 +78,6 @@ settings-units-temp-hub =
     🌡️ <b>Temperatureinheiten</b>
 
     Wähle, in welchen Einheiten die Temperatur angezeigt wird 👇
+
+temperature-unit-no-change = Die ausgewählte Temperatureinheit ist bereits aktiv.
+temperature-unit-success = Temperatureinheit erfolgreich aktualisiert!
