@@ -1,3 +1,4 @@
+#[derive(PartialEq, Debug, Clone, Copy)]
 pub enum TemperatureUnits {
     Celsius,
     Fahrenheit,
