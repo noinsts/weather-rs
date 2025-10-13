@@ -4,6 +4,7 @@ use fluent_bundle::FluentArgs;
 use teloxide::prelude::*;
 use teloxide::Bot;
 use teloxide::types::ParseMode;
+use once_cell::sync::Lazy;
 
 use crate::db::pool::DbPool;
 use crate::types::HandlerResult;
@@ -11,11 +12,20 @@ use crate::api::{fetch_forecast, today_weather, tomorrow_weather};
 use crate::api::models::{WeatherResponse, Forecast};
 use crate::db::queries::UserQueries;
 use crate::enums::languages::Languages;
+use crate::enums::units::TemperatureUnits;
 use crate::fluent_args;
 use crate::traits::chat::ChatSource;
 use crate::utils::keyboard::get_to_hub;
 use crate::utils::locales::get_text;
 use crate::utils::string::capitalize_first_letter;
+
+static WEATHER_CONFIG: Lazy<Result<String, String>> = Lazy::new(|| {
+    dotenv().ok();
+    env::var("WEATHER_API_KEY").map_err(|_| {
+        eprintln!("WEATHER_API_KEY environment variable not set");
+        String::from("Missing API key")
+    })
+});
 
 /// Weather handler type, representing available forecast options.
 #[derive(Debug, Clone, Copy)]
@@ -29,10 +39,11 @@ enum WeatherPeriod {
 impl WeatherPeriod {
     /// Returns localized label for the forecast option.
     fn label(&self, lang: Languages) -> String {
-        match self {
-            WeatherPeriod::Today => get_text(lang, "today", None),
-            WeatherPeriod::Tomorrow => get_text(lang, "tomorrow", None),
-        }
+        let key = match self {
+            WeatherPeriod::Today => "today",
+            WeatherPeriod::Tomorrow => "tomorrow",
+        };
+        get_text(lang, key, None)
     }
 
     /// Returns a selector function that extracts the right forecast
@@ -66,34 +77,14 @@ enum WeatherError {
 impl WeatherError {
     /// Returns user-friendly error message
     fn user_message(&self, lang: Languages) -> String {
-        match self {
-            WeatherError::MissingApiKey => get_text(lang, "service-error", None),
-            WeatherError::UserNotFound => get_text(lang, "user-not-found", None),
-            WeatherError::ApiFetchError => get_text(lang, "api-fetch-error", None),
-            WeatherError::NoForecastData => get_text(lang, "no-forecast-data", None),
-            WeatherError::MissingMessage => get_text(lang, "missing-message", None),
-        }
-    }
-}
-
-
-/// Configuration for weather service
-struct WeatherConfig {
-    api_key: String,
-}
-
-impl WeatherConfig {
-    /// Creates new weather configuration by reading from environment
-    fn from_env() -> Result<Self, WeatherError> {
-        dotenv().ok();
-
-        let api_key = env::var("WEATHER_API_KEY")
-            .map_err(|_| {
-                eprintln!("WEATHER_API_KEY environment variable not set");
-                WeatherError::MissingApiKey
-            })?;
-
-        Ok(Self { api_key })
+        let key = match self {
+            WeatherError::MissingApiKey => "service-error",
+            WeatherError::UserNotFound => "user-not-found",
+            WeatherError::ApiFetchError => "api-fetch-error",
+            WeatherError::NoForecastData => "no-forecast-data",
+            WeatherError::MissingMessage => "missing-message",
+        };
+        get_text(lang, key, None)
     }
 }
 
@@ -112,26 +103,41 @@ async fn weather_handler(
 ) -> HandlerResult {
     let callback_id = callback.id.clone();
 
-    let user = match UserQueries::get_user(db, callback.user_id()).await {
-        Some(user) => user,
-        None => {
-            bot.answer_callback_query(callback_id)
-                .text(WeatherError::UserNotFound.user_message(Languages::default()))
-                .show_alert(true)
-                .await?;
-            return Ok(());
-        }
-    };
+    let user = UserQueries::get_user(db, callback.user_id())
+        .await
+        .ok_or_else(|| WeatherError::UserNotFound)
+        .and_then(|u| {
+            Languages::from_str(&u.language)
+                .ok_or(WeatherError::UserNotFound)
+                .map(|lang| (u, lang))
+        });
 
-    let lang = Languages::from_str(&user.language).unwrap_or_default();
-
-    match handle_weather_request(&bot, &callback, period, user.city, lang).await {
-        Ok(_) => {
-            bot.answer_callback_query(callback_id).await?;
+    match user {
+        Ok((user, lang)) => {
+            match handle_weather_request(
+                &bot,
+                &callback,
+                period,
+                user.city,
+                lang,
+                TemperatureUnits::from_str(&user.temperature_unit).unwrap_or_default()
+            )
+                .await
+            {
+                Ok(_) => {
+                    bot.answer_callback_query(callback_id).await?;
+                }
+                Err(e) => {
+                    bot.answer_callback_query(callback_id)
+                        .text(e.user_message(lang))
+                        .show_alert(true)
+                        .await?;
+                }
+            }
         }
         Err(e) => {
             bot.answer_callback_query(callback_id)
-                .text(e.user_message(lang))
+                .text(e.user_message(Languages::default()))
                 .show_alert(true)
                 .await?;
         }
@@ -147,21 +153,25 @@ async fn handle_weather_request(
     period: WeatherPeriod,
     city: String,
     lang: Languages,
+    temperature_unit: TemperatureUnits
 ) -> Result<(), WeatherError> {
-    let config = WeatherConfig::from_env()?;
+    let api_key = WEATHER_CONFIG
+        .as_ref()
+        .map_err(|_| WeatherError::MissingApiKey)?;
 
     let message = callback.message
         .as_ref()
         .ok_or(WeatherError::MissingMessage)?;
 
-    let weather_response = fetch_forecast(&city, &config.api_key, lang)
+    let weather_response = fetch_forecast(&city, api_key, lang)
         .await
         .map_err(|_| WeatherError::ApiFetchError)?;
 
-    let forecast = period.selector()(&weather_response)
+    let forecast = period
+        .selector()(&weather_response)
         .ok_or(WeatherError::NoForecastData)?;
 
-    let formatted_message = format_weather_message(&city, period, &forecast, lang);
+    let formatted_message = format_weather_message(&city, period, &forecast, lang, temperature_unit);
 
     bot.edit_message_text(message.chat().id, message.id(), formatted_message)
         .reply_markup(get_to_hub(lang))
@@ -173,9 +183,17 @@ async fn handle_weather_request(
 }
 
 /// Formats weather information into a user-friendly message
-fn format_weather_message(city: &str, period: WeatherPeriod, response: &Forecast, lang: Languages) -> String {
+fn format_weather_message(
+    city: &str,
+    period: WeatherPeriod,
+    response: &Forecast,
+    lang: Languages,
+    temperature_unit: TemperatureUnits
+) -> String {
     let description = &response.weather[0].description;
     let emoji = weather_to_emoji(description);
+    let temp = convert_temperature(response.main.temp, temperature_unit);
+    let feels_like = convert_temperature(response.main.feels_like, temperature_unit);
     let wind_speed = if response.wind.speed as i32 == 0 {
         get_text(lang, "weather-wind-speed-unknown", None)
     }
@@ -188,57 +206,42 @@ fn format_weather_message(city: &str, period: WeatherPeriod, response: &Forecast
         "day" => period.label(lang).to_lowercase(),
         "emoji" => emoji,
         "description" => capitalize_first_letter(description),
-        "temp" => response.main.temp as i32,
-        "feels_like" => response.main.feels_like as i32,
+        "temp" => temp as i32,
+        "feels_like" => feels_like as i32,
         "humidity" => response.main.humidity,
         "wind_speed" => wind_speed,
+        "temp_unit" => temperature_unit.as_str(),
     ];
 
     get_text(lang, "weather", Some(&args))
 }
 
+fn convert_temperature(celsius: f64, unit: TemperatureUnits) -> f64 {
+    match unit {
+        TemperatureUnits::Celsius => celsius,
+        TemperatureUnits::Fahrenheit => (celsius * 9.0 / 5.0) + 32.0,
+        TemperatureUnits::Kelvin => celsius + 273.15,
+    }
+}
+
+const WEATHER_EMOJI_PATTERNS: &[(&[&str], &str)] = &[
+    (&["дощ", "rain", "regen"], "🌧️"),
+    (&["сніг", "snow", "schnee"], "❄️"),
+    (&["хмар", "похмуро", "cloud", "cloudy", "wolken", "bewölkt"], "☁️"),
+    (&["ясно", "сонячно", "sun", "sunny", "klar"], "☀️"),
+    (&["туман", "fog", "mist", "nebel"], "🌫️"),
+    (&["гроза", "thunder", "storm", "gewitter"], "⛈️"),
+];
+
 /// Returns weather emoji
 fn weather_to_emoji(description: &str) -> &'static str {
-    match description.to_lowercase().as_str() {
-        // дощ / rain / Regen
-        desc if desc.contains("дощ")
-            || desc.contains("rain")
-            || desc.contains("regen") => "🌧️",
-
-        // сніг / snow / Schnee
-        desc if desc.contains("сніг")
-            || desc.contains("snow")
-            || desc.contains("schnee") => "❄️",
-
-        // хмари / cloudy / wolken
-        desc if desc.contains("хмар")
-            || desc.contains("похмуро")
-            || desc.contains("cloud")
-            || desc.contains("cloudy")
-            || desc.contains("wolken")
-            || desc.contains("bewölkt") => "☁️",
-
-        // ясно / сонячно / sunny / klar
-        desc if desc.contains("ясно")
-            || desc.contains("сонячно")
-            || desc.contains("sun")
-            || desc.contains("sunny")
-            || desc.contains("klar") => "☀️",
-
-        // туман / fog / nebel
-        desc if desc.contains("туман")
-            || desc.contains("fog")
-            || desc.contains("mist")
-            || desc.contains("nebel") => "🌫️",
-
-        // гроза / thunderstorm / gewitter
-        desc if desc.contains("гроза")
-            || desc.contains("thunder")
-            || desc.contains("storm")
-            || desc.contains("gewitter") => "⛈️",
-
-        _ => "🌤️", // Default
-    }
+    WEATHER_EMOJI_PATTERNS
+        .iter()
+        .find(|(patterns, _)| {
+            patterns.iter().any(|pattern| description.to_lowercase().contains(pattern))
+        })
+        .map(|(_, emoji)| *emoji)
+        .unwrap_or("🌤️")
 }
 
 /// Handler for today weather.
