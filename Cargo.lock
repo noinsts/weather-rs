@@ -2630,6 +2630,7 @@ dependencies = [
  "diesel-async",
  "dotenvy",
  "fluent-bundle",
+ "once_cell",
  "reqwest",
  "serde",
  "teloxide",
