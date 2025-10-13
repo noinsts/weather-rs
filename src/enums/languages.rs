@@ -23,7 +23,7 @@ impl Languages {
             "en" => Some(Languages::En),
             "uk" => Some(Languages::Uk),
             "de" => Some(Languages::De),
-            &_ => todo!(),
+            &_ => None,
         }
     }
 
