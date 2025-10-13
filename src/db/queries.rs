@@ -103,6 +103,17 @@ impl UserQueries {
         Ok(())
     }
     
+    /// Updates the temperature unit preference for a user.
+    ///
+    /// # Arguments
+    ///
+    /// - `pool` - Shared database connection pool.
+    /// - `user_id` - The ID of the user to update.
+    /// - `temp` - The temperature unit to set (e.g., "C", "F", "K").
+    ///
+    /// # Returns
+    /// - `Ok(())` if the database succeed.
+    /// - `Err` if a database error occurs.
     pub async fn set_temp_unit(pool: &DbPool, user_id: i64, temp: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
         let mut conn = pool.get().await?;
         let now = Utc::now().naive_utc();
