@@ -30,7 +30,7 @@ weather =
 
     { $emoji } { $description }
 
-    🌡️ <b>Temperature</b>: { $temp }°C (feels like { $feels_like }°C)
+    🌡️ <b>Temperature</b>: { $temp }{ $temp_unit } (feels like { $feels_like }{ $temp_unit })
     💧 <b>Humidity</b>: { $humidity }%
     💨 <b>Wind</b>: { $wind_speed }
 
