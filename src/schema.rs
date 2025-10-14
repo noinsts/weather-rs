@@ -85,6 +85,22 @@ pub fn schema() -> UpdateHandler<Box<dyn std::error::Error + Send + Sync + 'stat
         .branch(
             dptree::filter(|q: CallbackQuery| q.data.as_deref() == Some(Callbacks::Speed.as_str()))
                 .endpoint(settings::units::speed::hub::handler)
+        )
+        .branch(
+            dptree::filter(|q: CallbackQuery| q.data.as_deref() == Some(Callbacks::KilometersPerHour.as_str()))
+                .endpoint(settings::units::speed::select::khp_handler)
+        )
+        .branch(
+            dptree::filter(|q: CallbackQuery| q.data.as_deref() == Some(Callbacks::MetersPerMinute.as_str()))
+                .endpoint(settings::units::speed::select::mps_handler)
+        )
+        .branch(
+            dptree::filter(|q: CallbackQuery| q.data.as_deref() == Some(Callbacks::MilesPerHour.as_str()))
+                .endpoint(settings::units::speed::select::mph_handler)
+        )
+        .branch(
+            dptree::filter(|q: CallbackQuery| q.data.as_deref() == Some(Callbacks::Knots.as_str()))
+                .endpoint(settings::units::speed::select::knots_handler)
         );
 
     dptree::entry()
