@@ -81,3 +81,8 @@ settings-units-temp-hub =
 
 temperature-unit-no-change = Die ausgewählte Temperatureinheit ist bereits aktiv.
 temperature-unit-success = Temperatureinheit erfolgreich aktualisiert!
+
+settings-units-speed-hub = 
+    💨 <b>Geschwindigkeitseinheiten</b>
+
+    Wähle, in welchen Einheiten die Windgeschwindigkeit angezeigt wird 👇

@@ -80,3 +80,8 @@ settings-units-temp-hub =
 
 temperature-unit-no-change = The selected temperature unit is already active.
 temperature-unit-success = Temperature unit updated successfully!
+
+settings-units-speed-hub = 
+    💨 <b>Speed Units</b>
+
+    Choose the units to display wind speed 👇
