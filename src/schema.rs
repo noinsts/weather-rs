@@ -81,6 +81,10 @@ pub fn schema() -> UpdateHandler<Box<dyn std::error::Error + Send + Sync + 'stat
         .branch(
             dptree::filter(|q: CallbackQuery| q.data.as_deref() == Some(Callbacks::Kelvin.as_str()))
                 .endpoint(settings::units::temperature::select::kelvin_handler)
+        )
+        .branch(
+            dptree::filter(|q: CallbackQuery| q.data.as_deref() == Some(Callbacks::Speed.as_str()))
+                .endpoint(settings::units::speed::hub::handler)
         );
 
     dptree::entry()
