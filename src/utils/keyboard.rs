@@ -74,3 +74,16 @@ pub fn get_temperature_keyboard(lang: Languages) -> InlineKeyboardMarkup {
         vec![InlineKeyboardButton::callback(get_text(lang, "back", None), Callbacks::SelectUnits.as_str())],
     ])
 }
+
+/// Returns keyboard for units/speed settings hub
+pub fn get_speed_keyboard(lang: Languages) -> InlineKeyboardMarkup {
+    InlineKeyboardMarkup::new(vec![
+        vec![
+            InlineKeyboardButton::callback("km/h", Callbacks::KilometersPerHour.as_str()),
+            InlineKeyboardButton::callback("m/s", Callbacks::MetersPerMinute.as_str()),
+            InlineKeyboardButton::callback("mph", Callbacks::MilesPerHour.as_str()),
+            InlineKeyboardButton::callback("kt", Callbacks::Knots.as_str()),
+        ],
+        vec![InlineKeyboardButton::callback(get_text(lang, "back", None), Callbacks::SelectUnits.as_str())],
+    ])
+}
