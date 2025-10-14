@@ -21,6 +21,12 @@ pub enum Callbacks {
     Celsius,
     Fahrenheit,
     Kelvin,
+    
+    // Speed
+    KilometersPerHour,
+    MetersPerMinute,
+    MilesPerHour,
+    Knots,
 }
 
 impl Callbacks {
@@ -40,6 +46,10 @@ impl Callbacks {
             Callbacks::Celsius => "celsius",
             Callbacks::Fahrenheit => "fahrenheit",
             Callbacks::Kelvin => "kelvin",
+            Callbacks::KilometersPerHour => "kilometers-per-hour",
+            Callbacks::MetersPerMinute => "meters-per-minute",
+            Callbacks::MilesPerHour => "miles-per-hour",
+            Callbacks::Knots => "knots",
         }
     }
 }
