@@ -29,6 +29,7 @@ pub async fn init_db(database_url: &str) -> Result<DbPool, Box<dyn Error>> {
             city TEXT NOT NULL,\
             language TEXT NOT NULL,\
             temperature_unit TEXT NOT NULL,\
+            speed_unit TEXT NOT NULL,\
             created_at TIMESTAMP NOT NULL,\
             updated_at TIMESTAMP NOT NULL\
         )"

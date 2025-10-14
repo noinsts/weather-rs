@@ -4,9 +4,8 @@ use chrono::Utc;
 use diesel::prelude::*;
 use diesel::ExpressionMethods;
 use diesel_async::RunQueryDsl;
-
 use crate::enums::languages::Languages;
-use crate::enums::units::TemperatureUnits;
+use crate::enums::units::{SpeedUnits, TemperatureUnits};
 use super::models::{User, UserData};
 use super::pool::DbPool;
 use super::schema::users;
@@ -60,6 +59,7 @@ impl UserQueries {
                 city: city.to_string(),
                 language: Languages::default().as_str().to_string(),
                 temperature_unit: TemperatureUnits::default().as_str().to_string(),
+                speed_unit: SpeedUnits::default().as_str().to_string(),
                 created_at: now,
                 updated_at: now,
             })
