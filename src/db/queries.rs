@@ -129,4 +129,20 @@ impl UserQueries {
         
         Ok(())
     }
+    
+    pub async fn set_speed_unit(pool: &DbPool, user_id: i64, speed: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
+        let mut conn = pool.get().await?;
+        let now = Utc::now().naive_utc();
+        
+        diesel::update(users::table)
+            .filter(users::id.eq(user_id))
+            .set((
+                users::speed_unit.eq(speed),
+                users::updated_at.eq(now),
+            ))
+            .execute(&mut conn)
+            .await?;
+        
+        Ok(())
+    }
 }
