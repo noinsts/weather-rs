@@ -129,7 +129,17 @@ impl UserQueries {
         
         Ok(())
     }
-    
+
+    /// Updates the speed unit preference for a user.
+    ///
+    /// # Arguments
+    /// - `pool` - Shared database connection pool.
+    /// - `user_id` - The ID of the user to update.
+    /// - `speed` - The temperature unit to set.
+    ///
+    /// # Returns
+    /// - `Ok(())` if the database succeed.
+    /// - `Err` if a database error occurs.
     pub async fn set_speed_unit(pool: &DbPool, user_id: i64, speed: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
         let mut conn = pool.get().await?;
         let now = Utc::now().naive_utc();
