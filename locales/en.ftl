@@ -85,3 +85,6 @@ settings-units-speed-hub =
     💨 <b>Speed Units</b>
 
     Choose the units to display wind speed 👇
+
+speed-unit-no-change = The selected speed unit is already active.
+speed-unit-success = Speed unit updated successfully!

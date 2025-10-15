@@ -86,3 +86,6 @@ settings-units-speed-hub =
     💨 <b>Geschwindigkeitseinheiten</b>
 
     Wähle, in welchen Einheiten die Windgeschwindigkeit angezeigt wird 👇
+
+speed-unit-no-change = Die ausgewählte Geschwindigkeitseinheit ist bereits aktiv.
+speed-unit-success = Geschwindigkeitseinheit wurde erfolgreich aktualisiert!
