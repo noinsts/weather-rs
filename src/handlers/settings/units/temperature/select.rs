@@ -15,9 +15,10 @@ use crate::utils::locales::get_text;
 /// - `bot` - The Telegram bot instance.
 /// - `callback` - The callback query triggered by the user.
 /// - `db` - The database connection pool.
+/// - `unit` - The temperature unit to be set.
 ///
 /// # Returns
-/// - `HandlerResult` - Result indication whether the handler executed successfully.
+/// - [`HandlerResult`] - Result indication whether the handler executed successfully.
 ///
 /// # Behavior
 /// - Fetches the user from the database.
